@@ -1,0 +1,9 @@
+# ignore .ini.php (should commit *.ini.php.dist)
+*.ini.php
+
+# ignore some directories except .htaccess
+/cache/*
+!/cache/.htaccess
+
+/data/*
+!/data/.htaccess

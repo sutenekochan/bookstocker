@@ -1,0 +1,42 @@
+<?php
+
+// ---------- debug mode ----------
+define('DEBUG', FALSE);
+
+
+// ---------- ディレクトリに関する設定 ----------
+// Amazon から取ってきた情報のキャッシュを保存するディレクトリ (public_html外でも良い)
+define ('CACHE_DIR', dirname(__FILE__) . '/cache/');
+
+
+// ---------- データ保存に関する設定 ----------
+// すべて設定必須
+// DB_DSN で DB を指定、DB_USERNAME と DB_PASSWORD が不要な場合は '' をセットすること
+
+define('DB_DSN', 'sqlite:./data/bookstocker.sqlite3');
+define('DB_USERNAME', '');
+define('DB_PASSWORD', '');
+
+// utf8mb4は、4バイト絵文字等も扱えるutf8
+//define('DB_DSN', 'mysql:dbname=bookstocker;host=127.0.0.1;charset=utf8mb4');
+//define('DB_USERNAME', 'dbuser');
+//define('DB_PASSWORD', 'dbpassword');
+
+
+// ---------- Amazon Product Advertising API に関する設定 ----------
+// すべて設定必須
+// AMAZON_ASSOCIATE_ID が不要な場合は '' をセットすること
+
+define('AWS_ACCESSKEY', 'ABCDEFGHIJKLMNOPQRST');
+define('AWS_SECRETKEY', 'abcdefghijklmnopqrstuvwxyz0123456789ABCD');
+define('AMAZON_ASSOCIATE_ID','dameneko-22');
+
+
+// ---------- 表示に関する設定 ----------
+// すべて設定必須
+
+// 1ページあたり何項目表示するか
+define('ITEMS_PER_PAGE', 10);
+
+
+?>

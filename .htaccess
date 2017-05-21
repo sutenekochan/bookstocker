@@ -1,0 +1,16 @@
+<FilesMatch "\.(ini\.php|txt|md|sqlite3|gitignore)$">
+	Order allow,deny
+	Deny from all
+</FilesMatch>
+
+<Files "getInfoFromAmazon.php">
+	Order allow,deny
+	Deny from all
+</Files>
+
+
+AuthName      bookstocker
+AuthType      Digest
+AuthUserFile  /some/directory/.htdigest
+Require       valid-user
+
