@@ -133,6 +133,7 @@ class AmazonApi
 
   // ---------- ISBNのcheck digit(最後の桁)の再計算 ----------
   // 引数としてISBNを取り(間違ったCheck Digitを含む10/13桁)、正しいCheck DigitをつけたISBNを返す
+  // 計算式：ISBN10＝モジュラス11 ウェイト10-2 / ISBN13＝モジュラス10 ウェイト3・1
   public static function calcIsbn10CheckDigit($isbn10)
   {
     $checkDigit = 0;
@@ -143,6 +144,8 @@ class AmazonApi
     }
     $checkDigit = $checkDigit % 11;
     $checkDigit = 11 - $checkDigit;
+    if($checkDigit == 10) { $checkDigit = "X";  }
+    if($checkDigit == 11) { $checkDigit = "0";  }
 
     return (int)(substr($isbn10, 0, -1) . $checkDigit);
   }
