@@ -53,21 +53,11 @@ if(isset($_REQUEST["act"]))
 
 
 
-?>
-
-
-<?php
 // ---------- メッセージがある場合のみメッセージ表示 ---------- 
-  if($message !== "") {
-?>
-<textarea class="messagetext"><?= htmlspecialchars($message) ?></textarea>
-<br>
-<br>
-<?php } ?>
+printMessage($message);
 
 
-<!-- ---------- 項目一覧 ---------- -->
-<?php
+// ---------- 項目一覧 ----------
   $placeList = $db->getPlaceList();
   $placeCount = count($placeList);
 ?>

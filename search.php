@@ -102,14 +102,9 @@ else
 
 
 // ---------- メッセージがある場合のみメッセージ表示 ---------- 
-  if($message !== "") {
-?>
-<textarea class="messagetext"><?= htmlspecialchars($message) ?></textarea>
-<br>
-<br>
-<?php } ?>
+printMessage($message);
 
-<?php
+
 // ---------- 検索フォーム表示 ----------
 ?>
 

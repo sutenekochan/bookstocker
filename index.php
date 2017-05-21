@@ -56,7 +56,7 @@ if(isset($_REQUEST["act"]))
       $ret = $db->addItem(BookStockerDB::DataSource_UserDefined , $_REQUEST["itemid"], $_REQUEST["title"], $_REQUEST["author"], $_REQUEST["publisher"], $_REQUEST["place"], $_REQUEST["state"]);
       if($ret === FALSE)
       {
-        $message = "追加に失敗しました (db) (" . $db->getLastError() . ")";
+        $message = "追加に失敗しました (db) \n" . $db->getLastError();
       }
       else
       {
@@ -77,7 +77,7 @@ if(isset($_REQUEST["act"]))
 
       if($itemid === NULL)
       {
-        $message = "追加に失敗しました (必要なパラメータがセットされていないか、AmazonのURLからパラメータを推測できません)";
+        $message = "追加に失敗しました\n必要なパラメータがセットされていないか、AmazonのURLからパラメータを推測できません";
       }
       else
       {
@@ -92,14 +92,14 @@ if(isset($_REQUEST["act"]))
 
         if($newItem === NULL)
         {
-          $message = "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . $itemid . "]) (" . $ama->getLastError() . ")";
+          $message = "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . $itemid . "])\n" . $ama->getLastError();
         }
         else
         {
           $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $itemid, $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $_REQUEST["place"], $_REQUEST["state"]);
           if($ret === FALSE)
           {
-            $message = "追加に失敗しました (db) (" . $db->getLastError() . ")";
+            $message = "追加に失敗しました (db)\n" . $db->getLastError();
           }
           else
           {
@@ -117,7 +117,7 @@ if(isset($_REQUEST["act"]))
     $ret = $db->deleteItem($_REQUEST["id"]);
     if($ret === FALSE)
     {
-      $message = "削除に失敗しました (" . $db->getLastError() . ")";
+      $message = "削除に失敗しました\n" . $db->getLastError();
     }
     else
     {
@@ -132,7 +132,7 @@ if(isset($_REQUEST["act"]))
     $ret = $db->modifyItemPlace($_REQUEST["id"], $_REQUEST["place"]);
     if($ret === FALSE)
     {
-      $message = "保管場所の変更に失敗しました (" . $db->getLastError() . ")";
+      $message = "保管場所の変更に失敗しました\n" . $db->getLastError();
     }
     else
     {
@@ -147,7 +147,7 @@ if(isset($_REQUEST["act"]))
     $ret = $db->modifyItemState($_REQUEST["id"], $_REQUEST["state"]);
     if($ret === FALSE)
     {
-      $message = "ステータスの変更に失敗しました (" . $db->getLastError() . ")";
+      $message = "ステータスの変更に失敗しました\n" . $db->getLastError();
     }
     else
     {
@@ -167,7 +167,7 @@ if(isset($_REQUEST["act"]))
     $ret = $db->modifyItemMemo($_REQUEST["id"], $newMemo);
     if($ret === FALSE)
     {
-      $message = "メモの変更に失敗しました (" . $db->getLastError() . ")";
+      $message = "メモの変更に失敗しました\n" . $db->getLastError();
     }
     else
     {
@@ -195,15 +195,9 @@ else
 
 
 // ---------- メッセージがある場合のみメッセージ表示 ---------- 
-  if($message !== "") {
-?>
-<textarea class="messagetext"><?= htmlspecialchars($message) ?></textarea>
-<br>
-<br>
-<?php } ?>
+printMessage($message);
 
 
-<?php
 // ---------- 新規登録 ---------- -->
 ?>
 

@@ -282,7 +282,16 @@ class AmazonApi
       $itemList->parseXml($responceText);
       if($itemList->getAsin() == '')
       {
-        $this->lastErrorString = $itemList->getErrorMessage();
+        $errorMessage = $itemList->getErrorMessage();
+        if($errorMessage != "")
+        {
+          if($this->lastErrorString == "")
+          {
+            $this->lastErrorString = $errorMessage;
+          } else {
+            $this->lastErrorString .= "\n" . $errorMessage;
+          }
+        }
         $itemList = NULL;
       }
       else
@@ -318,7 +327,16 @@ class AmazonApi
       // 複数商品が含まれている可能性があるので、キャッシュ保存は行わない
       if($itemList->getAsin() == '')
       {
-        $this->lastErrorString = $itemList->getErrorMessage();
+        $errorMessage = $itemList->getErrorMessage();
+        if($errorMessage != "")
+        {
+          if($this->lastErrorString == "")
+          {
+            $this->lastErrorString = $errorMessage;
+          } else {
+            $this->lastErrorString .= "\n" . $errorMessage;
+          }
+        }
         $itemList = NULL;
       }
     }
@@ -438,19 +456,31 @@ class AmazonApi
   {
     //print "[debug] request url: " . $url . "\n\n";
 
-    $responceText = @file_get_contents($url);    // いちおうエラー表示は抑制しておく、debug時は外すこと
-    //file_put_contents('debug.txt', $http_response_header . "\n\n" . $responceText);  // debug用。GETしたコンテンツをファイルに保存する
+    $context = stream_context_create(array( 'http' => array('ignore_errors' => true) ));  // 400番台や500番台のstatus codeが帰ってきてもコンテンツを取得
+    $responceText = @file_get_contents($url, FALSE, $context);    // いちおうエラー表示は抑制しておく、debug時は外すこと
+    //file_put_contents('cache/debug.txt', implode("\n", $http_response_header) . "\n\n" . $responceText);  // debug用。GETしたコンテンツをファイルに保存する
 
-    if($responceText === NULL)
+    if(count($http_response_header) <= 0)
     {
-      if(count($http_response_header) > 0)
-      {
-        $this->lastErrorString = $http_response_header[0];  // HTTP Responce の1行目＝ステータスコードを含む文字列が入る
-      }
+      $this->lastErrorString = 'Server does not responce any text.';
+      $responceText = NULL;  // 念のため
     }
     else
     {
-      $this->lastErrorString = '';
+      $responceStatusArray = explode(' ', $http_response_header[0], 3);
+      $responceStatusCode = $responceStatusArray[1];  // 404等のコード
+      $responceStatusMessage = $responceStatusArray[2];  // Not found 等の文字列
+
+      // 正常終了、あるいは、エラーコード＋エラーの内容を示すコンテンツ
+      switch($responceStatusCode)
+      {
+        case 200:
+          $this->lastErrorString = '';
+          break;
+        default:  // 404,503 etc.  この場合でも responceText は not null の場合がある
+          $this->lastErrorString = $responceStatusCode . " " . $responceStatusMessage;
+          break;
+      }
     }
 
     return $responceText;
@@ -526,10 +556,16 @@ class AmazonItemList
     $value = '';
     if($this->xmlData !== false)
     {
-      if(isset($this->xmlData->{'Items'}->{'Request'}->{'Errors'}))
+      if(isset($this->xmlData->{'Error'}))
+      {
+        $value = $this->xmlData->{'Error'}->{'Code'};
+        $value .= " : ";
+        $value .= $this->xmlData->{'Error'}->{'Message'};
+      }
+      else if(isset($this->xmlData->{'Items'}->{'Request'}->{'Errors'}))
       {
         $value = $this->xmlData->{'Items'}->{'Request'}->{'Errors'}->{'Error'}->{'Code'};
-        $value .= ": ";
+        $value .= " : ";
         $value .= $this->xmlData->{'Items'}->{'Request'}->{'Errors'}->{'Error'}->{'Message'};
       }
     }
