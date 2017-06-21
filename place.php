@@ -1,32 +1,43 @@
 <?php
 
-require_once(dirname(__FILE__) . '/setting.ini.php');
-require_once(dirname(__FILE__) . '/lib/error.php');
-require_once(dirname(__FILE__) . '/lib/bookstockerdb.php');
+require_once(__DIR__ . '/setting.ini.php');
+require_once(__DIR__ . '/lib/error.php');
+require_once(__DIR__ . '/lib/function.php');
+require_once(__DIR__ . '/lib/parsearg.php');
+require_once(__DIR__ . '/lib/bookstockerdb.php');
+
+$message = "";
 
 $db = BookStockerDB::getInstance();
 if($db === NULL)
 {
   error_exit($db->get_message());
 }
-
 $db->init(DB_DSN, DB_USERNAME, DB_PASSWORD);
 
+if(PHP_SAPI == 'cli') {
+  $parsedArgv = requestParser::createArgArrayFromArgv($argv);
+  $rp = new requestParser([], $parsedArgv);
+} else {
+  $rp = new requestParser($_GET, $_POST);
+}
+$arg = $rp->getAllArg();
 
+$rpMessage = $rp->getErrorMessage();
+foreach($rpMessage as $i)
+{
+  $message .= "$i\n";
+}
 
-
-require_once(dirname(__FILE__) . '/lib/header.php');
-
-
-$message = "";
+require_once(__DIR__. '/lib/header.php');
 
 
 // ---------- 追加・削除の処理 ---------- 
-if(isset($_REQUEST["act"]))
+if(isset($arg["action"]))
 {
-  if($_REQUEST["act"] == "add" && isset($_REQUEST["place"]))
+  if($arg["action"] == "addPlace" && isset($arg["newPlace"]))
   {
-    $ret1 = $db->addPlace($_REQUEST["place"]);
+    $ret1 = $db->addPlace($arg["newPlace"]);
     if($ret1 === FALSE)
     {
       $message = "追加に失敗しました (" . $db->getLastError() . ")";
@@ -37,9 +48,9 @@ if(isset($_REQUEST["act"]))
     }
   }
 
-  else if ($_REQUEST["act"] == "del" && isset($_REQUEST["id"]))
+  else if ($arg["action"] == "delPlace" && isset($arg["targetPlace"]))
   {
-    $ret2 = $db->deletePlace($_REQUEST["id"]);
+    $ret2 = $db->deletePlace($arg["targetPlace"]);
     if($ret2 === FALSE)
     {
       $message = "削除に失敗しました (" . $db->getLastError() . ")";
@@ -52,14 +63,13 @@ if(isset($_REQUEST["act"]))
 }
 
 
-
 // ---------- メッセージがある場合のみメッセージ表示 ---------- 
 printMessage($message);
 
 
 // ---------- 項目一覧 ----------
-  $placeList = $db->getPlaceList();
-  $placeCount = count($placeList);
+$placeList = $db->getPlaceList();
+$placeCount = count($placeList);
 ?>
 
 <table border=1>
@@ -70,10 +80,10 @@ printMessage($message);
  </tr>
 
  <tr>
-  <td>新規
   <form method="POST" action="place.php">
-  <input type="hidden" name="act" value="add">
-  <td><input type="text" name="place" size="40" value="" >
+  <td>新規
+  <input type="hidden" name="action" value="addPlace">
+  <td><input type="text" name="newPlace" size="40" value="" >
   <td><input type="submit" value="追加">
   </form>
  </tr>
@@ -85,15 +95,14 @@ printMessage($message);
   <?php if($placeCount >= 2) { ?>
   <td>
       <form method="POST" action="place.php">
-      <input type="hidden" name="act" value="del">
-      <input type="hidden" name="id" value="<?= htmlspecialchars($place["id"]); ?>">
+      <input type="hidden" name="act" value="delPlace">
+      <input type="hidden" name="targetPlace" value="<?= htmlspecialchars($place["id"]); ?>">
       <input type="submit" value="削除"></form>
  <?php } ?>
  </tr>
 <?php } ?>
 
 </table>
-
 
 <?php
 require_once(dirname(__FILE__) . '/lib/footer.php');

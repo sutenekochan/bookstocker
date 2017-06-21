@@ -1,5 +1,8 @@
 <?php
 
+require_once(__DIR__ . '/function.php');
+
+
 // ========== Bookstocker の DB 関連のクラス ==========
 //
 // singleton class として実装してある。
@@ -51,7 +54,6 @@
 //   $db->modifyItemMemo($itemId, $memo);            // メモを消去したい場合は $memo を NULL にする
 //
 // ・サポート関数
-//   BookStockerDB::containsHtmlSqlSpecialCharactors($str);  // $strにHTMLやSQL的にまずい文字が含まれている場合FALSE、それ以外だとTRUEが帰る
 //   BookStockerDB::makeStringParameter($str);               // $strにHTMLやSQL的にまずい文字が含まれている場合NULL、それ以外だと$strが帰る
 
 
@@ -231,34 +233,13 @@ class BookStockerDB
 
 
 
-  // ---------- HTMLやSQL的にまずい文字が含まれているかどうか判別 ----------
-  public static function containsHtmlSqlSpecialCharactors($s)
-  {
-    $ret = TRUE;
-
-    if(strpos($s, "<")  === FALSE &&
-       strpos($s, ">")  === FALSE &&
-       strpos($s, "&")  === FALSE &&
-       strpos($s, '"')  === FALSE &&
-       strpos($s, "'")  === FALSE &&
-       strpos($s, "%")  === FALSE &&
-       strpos($s, "_")  === FALSE &&
-       strpos($s, "\\")  === FALSE &&
-       strpos($s, "--") === FALSE)
-    {
-      $ret = FALSE;
-    }
-
-    return $ret;
-  }
-
 
 
   // ---------- SQLのplaceholderに渡す文字列パラメタを作る ----------
   public static function makeStringParameter($s)
   {
     $ret = NULL;
-    if(!BookStockerDB::containsHtmlSqlSpecialCharactors($s))
+    if(!containsHtmlSqlSpecialCharactors($s))
     {
       $ret = mb_convert_encoding($s, "UTF-8", "UTF-8");  // マルチバイト文字が中途半端に途切れたものを削除
     }
@@ -429,7 +410,7 @@ class BookStockerDB
   // ---------- itemを得る ----------
   public function getItemList($place = 0, $state = 0)
   {
-    return $this->searchItem(NULL, $place, $state, NULL, NULL, NULL);
+    return $this->searchItem(NULL, $place, $state, NULL, NULL, NULL, NULL);
   }
 
 

@@ -1,76 +1,88 @@
 <?php
 
-require_once(dirname(__FILE__) . '/setting.ini.php');
-require_once(dirname(__FILE__) . '/lib/error.php');
-require_once(dirname(__FILE__) . '/lib/bookstockerdb.php');
-require_once(dirname(__FILE__) . '/lib/amazonapi.php');
-require_once(dirname(__FILE__) . '/lib/itemlist.php');
+require_once(__DIR__ . '/setting.ini.php');
+require_once(__DIR__ . '/lib/error.php');
+require_once(__DIR__ . '/lib/function.php');
+require_once(__DIR__ . '/lib/parsearg.php');
+require_once(__DIR__ . '/lib/bookstockerdb.php');
+require_once(__DIR__ . '/lib/amazonapi.php');
+require_once(__DIR__ . '/lib/itemlist.php');
+
+$message = "";
 
 $db = BookStockerDB::getInstance();
 if($db === NULL)
 {
   error_exit($db->get_message());
 }
-
 $db->init(DB_DSN, DB_USERNAME, DB_PASSWORD);
 
 $ama = new amazonApi(AWS_ACCESSKEY, AWS_SECRETKEY, AMAZON_ASSOCIATE_ID, CACHE_DIR);
 
+if(PHP_SAPI == 'cli') {
+  $parsedArgv = requestParser::createArgArrayFromArgv($argv);
+  $rp = new requestParser([], $parsedArgv);
+} else {
+  $rp = new requestParser($_GET, $_POST);
+}
+$arg = $rp->getAllArg();
 
+$rpMessage = $rp->getErrorMessage();
+foreach($rpMessage as $i)
+{
+  $message .= "$i\n";
+}
 
-require_once(dirname(__FILE__) . '/lib/header.php');
-
-
-$message = "";
+require_once(__DIR__. '/lib/header.php');
 
 
 // ---------- 今後の処理のための変数をセット(1) 各種情報変更前にセットする情報 ---------- 
-$selectedItemId = "";
-if(isset($_REQUEST["itemid"]) && is_string($_REQUEST["itemid"]))
+$selectedItemCode = "";
+if(isset($arg["itemCode"]))
 {
-  $selectedItemId = $_REQUEST["itemid"];
+  $selectedItemCode = $arg["itemCode"][0];
 }
 
 
 $selectedPlace = 0;
-if(isset($_REQUEST["place"]) && is_numeric($_REQUEST["place"]))
+if(isset($arg["place"]))
 {
-  $selectedPlace = $_REQUEST["place"];
+  $selectedPlace = $arg["place"][0];
 }
 
 
 $selectedState = 0;
-if(isset($_REQUEST["state"]) && is_numeric($_REQUEST["state"]))
+if(isset($arg["state"]))
 {
-  $selectedState = $_REQUEST["state"];
+  $selectedState = $arg["state"][0];
 }
 
 
 $selectedTitle = "";
-if(isset($_REQUEST["title"]) && is_string($_REQUEST["title"]))
+if(isset($arg["title"]))
 {
-  $selectedTitle = $_REQUEST["title"];
+  $selectedTitle = $arg["title"][0];
 }
 
 
 $selectedAuthor = "";
-if(isset($_REQUEST["author"]) && is_string($_REQUEST["author"]))
+if(isset($arg["author"]))
 {
-  $selectedAuthor = $_REQUEST["author"];
+  $selectedAuthor = $arg["author"][0];
 }
 
 
 $selectedPublisher = "";
-if(isset($_REQUEST["publisher"]) && is_string($_REQUEST["publisher"]))
+if(isset($arg["publisher"]))
 {
-  $selectedPublisher = $_REQUEST["publisher"];
+  $selectedPublisher = $arg["publisher"][0];
 }
 
 
 $selectedMemo = "";
-if(isset($_REQUEST["memo"]) && is_string($_REQUEST["memo"]))
+if(isset($arg["memo"]))
 {
-  $selectedMemo = $_REQUEST["memo"];
+  $selectedMemo = $arg["memo"][0];
 }
 
 
@@ -78,9 +90,10 @@ $placeList = $db->getPlaceList();
 $stateList = $db->getStateList();
 
 
-if(isset($_REQUEST["act"]) && $_REQUEST["act"] == "search")
+if($selectedItemCode != "" || $selectedPlace != 0 || $selectedState != 0 ||
+   $selectedTitle != "" || $selectedAuthor != "" || $selectedPublisher != "" || $selectedMemo != "")
 {
-  $itemList = $db->searchItem($selectedItemId, $selectedPlace, $selectedState, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
+  $itemList = $db->searchItem($selectedItemCode, $selectedPlace, $selectedState, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
   $itemCount = count($itemList);
   if($itemCount == 0)
   {
@@ -109,12 +122,11 @@ printMessage($message);
 ?>
 
 <br>
-<form method="POST" action="search.php">
-<input type="hidden" name="act" value="search">
+<form method="GET" action="search.php">
 
 <table border=0>
 
-<tr><td>商品コード <td><input type="text" name="itemid"     size="40" value="<?= $selectedItemId ?>">
+<tr><td>商品コード <td><input type="text" name="itemCode" size="40" value="<?= $selectedItemCode ?>">
 
 <tr><td>保管場所
 <td><select name="place">

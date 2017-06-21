@@ -105,8 +105,8 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
 
    <span class="deleteIconArea">
     <form method="POST" action="index.php">
-     <input type="hidden" name="act" value="del">
-     <input type="hidden" name="id" value="<?= htmlspecialchars($item["id"]); ?>">
+     <input type="hidden" name="action" value="delItem">
+     <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
      <input type="image" src="img/delete_red.png" alt="削除" style="height:1.2em;" onclick="return confirm('本当に削除する？')">
      <!-- input type="submit" value="削除" -->
     </form>
@@ -130,9 +130,9 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
    </span><br>
 
    <form class="placeArea" method="POST" action="index.php">
-    <input type="hidden" name="act" value="modifyPlace">
-    <input type="hidden" name="id" value="<?= htmlspecialchars($item["id"]); ?>">
-    <select name="place" onchange="this.form.submit()">
+    <input type="hidden" name="action" value="modifyItem">
+    <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
+    <select name="newPlace" onchange="this.form.submit()">
      <?php foreach ($placeList as $place) { ?>
      <option value="<?= htmlspecialchars($place['id']); ?>" <?php if($place['id'] == $item["pid"]){ ?>selected <?php } ?> ><?= htmlspecialchars($place["place"]); ?></option>
      <?php } ?>
@@ -141,9 +141,9 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
    </form>
 
   <form class="stateArea" method="POST" action="index.php">
-   <input type="hidden" name="act" value="modifyState">
-   <input type="hidden" name="id" value="<?= htmlspecialchars($item["id"]); ?>">
-   <select name="state" onchange="this.form.submit()">
+   <input type="hidden" name="action" value="modifyItem">
+   <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
+   <select name="newState" onchange="this.form.submit()">
     <?php foreach ($stateList as $state) { ?>
     <option value="<?= htmlspecialchars($state['id']); ?>" <?php if($state['id'] == $item["sid"]){ ?>selected <?php } ?> ><?= htmlspecialchars($state["state"]); ?></option>
     <?php } ?>
@@ -153,9 +153,9 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
    <br>
 
    <form method="POST" action="index.php">
-   <input type="hidden" name="act" value="modifyMemo">
-   <input type="hidden" name="id" value="<?= htmlspecialchars($item["id"]); ?>">
-   <input type="text" name="memo" size=30 value="<?= htmlspecialchars($memo); ?>" placeholder="一言メモ">
+   <input type="hidden" name="action" value="modifyItem">
+   <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
+   <input type="text" name="newMemo" size=30 value="<?= htmlspecialchars($memo); ?>" placeholder="一言メモ">
    <input type="submit" value="メモ更新">
    </form>
 
@@ -175,8 +175,8 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
 function printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = 0, $currentFilterState = 0)
 {
   $filterText = "";
-  if($currentFilterPlace != 0) {  $filterText .= "&pl=" . $currentFilterPlace;  }
-  if($currentFilterState != 0) {  $filterText .= "&st=" . $currentFilterState;  }
+  if($currentFilterPlace != 0) {  $filterText .= "&place=" . $currentFilterPlace;  }
+  if($currentFilterState != 0) {  $filterText .= "&state=" . $currentFilterState;  }
   if($filterText != "") { $filterText = substr($filterText, 1); }
 
   ?>

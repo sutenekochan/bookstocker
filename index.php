@@ -1,59 +1,68 @@
 <?php
 
-require_once(dirname(__FILE__) . '/setting.ini.php');
-require_once(dirname(__FILE__) . '/lib/error.php');
-require_once(dirname(__FILE__) . '/lib/bookstockerdb.php');
-require_once(dirname(__FILE__) . '/lib/amazonapi.php');
-require_once(dirname(__FILE__) . '/lib/itemlist.php');
+require_once(__DIR__ . '/setting.ini.php');
+require_once(__DIR__ . '/lib/error.php');
+require_once(__DIR__ . '/lib/function.php');
+require_once(__DIR__ . '/lib/parsearg.php');
+require_once(__DIR__ . '/lib/bookstockerdb.php');
+require_once(__DIR__ . '/lib/amazonapi.php');
+require_once(__DIR__ . '/lib/itemlist.php');
 
+$message = "";
 
 $db = BookStockerDB::getInstance();
 if($db === NULL)
 {
   error_exit($db->get_message());
 }
-
 $db->init(DB_DSN, DB_USERNAME, DB_PASSWORD);
 
 $ama = new amazonApi(AWS_ACCESSKEY, AWS_SECRETKEY, AMAZON_ASSOCIATE_ID, CACHE_DIR);
 
+if(PHP_SAPI == 'cli') {
+  $parsedArgv = requestParser::createArgArrayFromArgv($argv);
+  $rp = new requestParser([], $parsedArgv);
+} else {
+  $rp = new requestParser($_GET, $_POST);
+}
+$arg = $rp->getAllArg();
 
+$rpMessage = $rp->getErrorMessage();
+foreach($rpMessage as $i)
+{
+  $message .= "$i\n";
+}
 
-require_once(dirname(__FILE__) . '/lib/header.php');
-
-
-$message = "";
-
+require_once(__DIR__. '/lib/header.php');
 
 
 // ---------- 今後の処理のための変数をセット(1) 各種情報変更前にセットする情報 ---------- 
 $selectedPlace = 0;
-if(isset($_REQUEST["pl"]) && is_numeric($_REQUEST["pl"]))
+if(isset($arg["place"]))
 {
-  $selectedPlace = $_REQUEST["pl"];
+  $selectedPlace = $arg["place"][0];
 }
 
 $selectedState = 0;
-if(isset($_REQUEST["st"]) && is_numeric($_REQUEST["st"]))
+if(isset($arg["state"]))
 {
-  $selectedState = $_REQUEST["st"];
+  $selectedState = $arg["state"][0];
 }
-
 
 $placeList = $db->getPlaceList();
 $stateList = $db->getStateList();
 
 
 // ---------- 追加処理 ---------- 
-if(isset($_REQUEST["act"]))
+if(isset($arg["action"]))
 {
-  if($_REQUEST["act"] == "add" && isset($_REQUEST["place"]) && isset($_REQUEST["state"]))
+  if($arg["action"] == "addItem" && isset($arg["newPlace"]) && isset($arg["newState"]))
   {
 
     // titleでの追加 (itemidよりこちらが優先)  AmazonのURLがあっても無視される
-    if(isset($_REQUEST["title"]) && $_REQUEST["title"] != "")
+    if(isset($arg["newTitle"]) && $arg["newTitle"] != "")
     {
-      $ret = $db->addItem(BookStockerDB::DataSource_UserDefined , $_REQUEST["itemid"], $_REQUEST["title"], $_REQUEST["author"], $_REQUEST["publisher"], $_REQUEST["place"], $_REQUEST["state"]);
+      $ret = $db->addItem(BookStockerDB::DataSource_UserDefined , $arg["newItemCode"], $arg["newTitle"], $arg["newAuthor"], $arg["newPublisher"], $arg["newPlace"], $arg["newState"]);
       if($ret === FALSE)
       {
         $message = "追加に失敗しました (db) \n" . $db->getLastError();
@@ -65,9 +74,9 @@ if(isset($_REQUEST["act"]))
     }
 
     // itemidでの追加
-    else if(isset($_REQUEST["itemid"]) && $_REQUEST["itemid"] != "" && (is_numeric($_REQUEST["itemid"]) || is_string($_REQUEST["itemid"])))
+    else if(isset($arg["newItemCode"]) && $arg["newItemCode"] != "" && (is_numeric($arg["newItemCode"]) || is_string($arg["newItemCode"])))
     {
-      $itemid = $_REQUEST["itemid"];
+      $itemid = $arg["newItemCode"];
 
       // 商品コード欄に入力されたものが http:// あるいは https:// で始まる場合、Amazon の URL とみなして変換する
       if(strstr($itemid, "http://") == $itemid || strstr($itemid, "https://") == $itemid)
@@ -96,7 +105,7 @@ if(isset($_REQUEST["act"]))
         }
         else
         {
-          $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $itemid, $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $_REQUEST["place"], $_REQUEST["state"]);
+          $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $itemid, $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
           if($ret === FALSE)
           {
             $message = "追加に失敗しました (db)\n" . $db->getLastError();
@@ -112,9 +121,9 @@ if(isset($_REQUEST["act"]))
 
 
 // ---------- 削除処理 ---------- 
-  else if ($_REQUEST["act"] == "del" && isset($_REQUEST["id"]))
+  else if ($arg["action"] == "delItem" && isset($arg["targetItem"]))
   {
-    $ret = $db->deleteItem($_REQUEST["id"]);
+    $ret = $db->deleteItem($arg["targetItem"]);
     if($ret === FALSE)
     {
       $message = "削除に失敗しました\n" . $db->getLastError();
@@ -127,51 +136,49 @@ if(isset($_REQUEST["act"]))
 
 
 // ---------- 変更処理(place) ---------- 
-  else if($_REQUEST["act"] == "modifyPlace" && isset($_REQUEST["id"]) && isset($_REQUEST["place"]))
+  else if($arg["action"] == "modifyItem" && isset($arg["targetItem"]))
   {
-    $ret = $db->modifyItemPlace($_REQUEST["id"], $_REQUEST["place"]);
-    if($ret === FALSE)
+    if(isset($arg["newPlace"]))
     {
-      $message = "保管場所の変更に失敗しました\n" . $db->getLastError();
+      $ret = $db->modifyItemPlace($arg["targetItem"], $arg["newPlace"]);
+      if($ret === FALSE)
+      {
+        $message = "保管場所の変更に失敗しました\n" . $db->getLastError();
+      }
+      else
+      {
+        $message = "保管場所を変更しました";
+      }
     }
-    else
-    {
-      $message = "保管場所を変更しました";
-    }
-  }
 
 
 // ---------- 変更処理(state) ---------- 
-  else if($_REQUEST["act"] == "modifyState" && isset($_REQUEST["id"]) && isset($_REQUEST["state"]))
-  {
-    $ret = $db->modifyItemState($_REQUEST["id"], $_REQUEST["state"]);
-    if($ret === FALSE)
+    if(isset($arg["newState"]))
     {
-      $message = "ステータスの変更に失敗しました\n" . $db->getLastError();
+      $ret = $db->modifyItemState($arg["targetItem"], $arg["newState"]);
+     if($ret === FALSE)
+      {
+        $message = "ステータスの変更に失敗しました\n" . $db->getLastError();
+      }
+      else
+      {
+        $message = "ステータスを変更しました";
+      }
     }
-    else
-    {
-      $message = "ステータスを変更しました";
-    }
-  }
 
 
 // ---------- 変更処理(memo) ---------- 
-  else if($_REQUEST["act"] == "modifyMemo" && isset($_REQUEST["id"]))
-  {
-    $newMemo = NULL;
-    if(isset($_REQUEST["memo"]))
+    if(isset($arg["newMemo"]))
     {
-      $newMemo = $_REQUEST["memo"];
-    }
-    $ret = $db->modifyItemMemo($_REQUEST["id"], $newMemo);
-    if($ret === FALSE)
-    {
-      $message = "メモの変更に失敗しました\n" . $db->getLastError();
-    }
-    else
-    {
-      $message = "メモを変更しました";
+      $ret = $db->modifyItemMemo($arg["targetItem"], $arg["newMemo"]);
+      if($ret === FALSE)
+      {
+        $message = "メモの変更に失敗しました\n" . $db->getLastError();
+      }
+      else
+      {
+        $message = "メモを変更しました";
+      }
     }
   }
 }
@@ -184,9 +191,9 @@ $itemCount = count($itemList);
 $pageCount = floor(($itemCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
 if($pageCount == 0) { $pageCount = 1; }
 
-if(isset($_REQUEST["p"]) && is_numeric($_REQUEST["p"]))
+if(isset($arg["p"]) && is_numeric($arg["p"]))
 {
-  $currentPage = $_REQUEST["p"];
+  $currentPage = $arg["p"];
 }
 else
 {
@@ -204,9 +211,9 @@ printMessage($message);
 <br>
  <form method="POST" action="index.php">
 
- <input type="hidden" name="act" value="add">
+ <input type="hidden" name="action" value="addItem">
  商品コード&nbsp;
- <input type="text" name="itemid" size="40" value="" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">&nbsp;
+ <input type="text" name="newItemCode" size="40" value="" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">&nbsp;
 
  <input type="submit" value="新規登録">
 
@@ -238,7 +245,7 @@ printMessage($message);
 <table border=0>
 
 <tr><td>保管場所
-<td><select name="place">
+<td><select name="newPlace">
  <?php foreach ($placeList as $place) { ?>
  <option value="<?= htmlspecialchars($place['id']); ?>"><?= htmlspecialchars($place["place"]); ?></option>
  <?php } ?>
@@ -246,7 +253,7 @@ printMessage($message);
 <br>
 
 <tr><td>未読既読状態
-<td><select name="state">
+<td><select name="newState">
  <?php foreach ($stateList as $state) { ?>
  <option value="<?= htmlspecialchars($state['id']); ?>"><?= htmlspecialchars($state["state"]); ?></option>
  <?php } ?>
@@ -254,9 +261,9 @@ printMessage($message);
 <tr><td colspan=2>&nbsp;
 <tr><td colspan=2>Amazonにないアイテムの場合<br>
 
-<tr><td>タイトル   <td><input type="text" name="title"      size="40" value="">
-<tr><td>著者       <td><input type="text" name="author"     size="40" value="">
-<tr><td>出版社     <td><input type="text" name="publisher"  size="40" value="">
+<tr><td>タイトル   <td><input type="text" name="newTitle"     size="40" value="">
+<tr><td>著者       <td><input type="text" name="newAuthor"    size="40" value="">
+<tr><td>出版社     <td><input type="text" name="newPublisher" size="40" value="">
 
 </table>
 
@@ -275,7 +282,7 @@ printMessage($message);
 <form class="filterFormArea" method="GET" action="index.php">
 
 保管場所
-<select name="pl" onchange="this.form.submit()">
+<select name="place" onchange="this.form.submit()">
  <option value="0">指定しない</option>
  <?php foreach ($placeList as $place) { ?>
  <option value="<?= htmlspecialchars($place['id']); ?>"<?php if($place['id'] == $selectedPlace) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
@@ -284,7 +291,7 @@ printMessage($message);
 &nbsp;&nbsp;
 
 未読既読状態
-<select name="st" onchange="this.form.submit()">
+<select name="state" onchange="this.form.submit()">
  <option value="0">指定しない</option>
  <?php foreach ($stateList as $state) { ?>
  <option value="<?= htmlspecialchars($state['id']); ?>"<?php if($state['id'] == $selectedState) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
