@@ -15,7 +15,7 @@
 //   $url                  // index.php 等を指定
 //   $currentPage          // 現在のページ
 //   $maxPage              // 最終ページ
-//   $currentFilterPlace   // フィルタ状態
+//   $currentFilterPlace   // フィルタ状態 (array型)
 //   $currentFilterState   // 
 
 
@@ -172,11 +172,11 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
 
 // ---------- 各ページへのリンクを表示 ----------
 
-function printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = 0, $currentFilterState = 0)
+function printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = [], $currentFilterState = [])
 {
   $filterText = "";
-  if($currentFilterPlace != 0) {  $filterText .= "&place=" . $currentFilterPlace;  }
-  if($currentFilterState != 0) {  $filterText .= "&state=" . $currentFilterState;  }
+  if($currentFilterPlace !== []) {  $filterText .= "&place=" . implode(",", $currentFilterPlace);  }
+  if($currentFilterState !== []) {  $filterText .= "&state=" . implode(",", $currentFilterState);  }
   if($filterText != "") { $filterText = substr($filterText, 1); }
 
   ?>

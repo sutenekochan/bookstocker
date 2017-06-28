@@ -37,52 +37,52 @@ require_once(__DIR__. '/lib/header.php');
 
 
 // ---------- 今後の処理のための変数をセット(1) 各種情報変更前にセットする情報 ---------- 
-$selectedItemCode = "";
+$selectedId = [];
+if(isset($arg["id"]))
+{
+  $selectedId = $arg["id"];
+}
+
+$selectedItemCode = [];
 if(isset($arg["itemCode"]))
 {
-  $selectedItemCode = $arg["itemCode"][0];
+  $selectedItemCode = $arg["itemCode"];
 }
 
-
-$selectedPlace = 0;
-if(isset($arg["place"]))
+$selectedPlace = [];
+if(isset($arg["place"]) && $arg["place"] !== [0])
 {
-  $selectedPlace = $arg["place"][0];
+  $selectedPlace = $arg["place"];
 }
 
-
-$selectedState = 0;
-if(isset($arg["state"]))
+$selectedState = [];
+if(isset($arg["state"]) && $arg["state"] !== [0])
 {
-  $selectedState = $arg["state"][0];
+  $selectedState = $arg["state"];
 }
 
-
-$selectedTitle = "";
+$selectedTitle = [];
 if(isset($arg["title"]))
 {
-  $selectedTitle = $arg["title"][0];
+  $selectedTitle = $arg["title"];
 }
 
-
-$selectedAuthor = "";
+$selectedAuthor = [];
 if(isset($arg["author"]))
 {
-  $selectedAuthor = $arg["author"][0];
+  $selectedAuthor = $arg["author"];
 }
 
-
-$selectedPublisher = "";
+$selectedPublisher = [];
 if(isset($arg["publisher"]))
 {
-  $selectedPublisher = $arg["publisher"][0];
+  $selectedPublisher = $arg["publisher"];
 }
 
-
-$selectedMemo = "";
+$selectedMemo = [];
 if(isset($arg["memo"]))
 {
-  $selectedMemo = $arg["memo"][0];
+  $selectedMemo = $arg["memo"];
 }
 
 
@@ -90,10 +90,10 @@ $placeList = $db->getPlaceList();
 $stateList = $db->getStateList();
 
 
-if($selectedItemCode != "" || $selectedPlace != 0 || $selectedState != 0 ||
-   $selectedTitle != "" || $selectedAuthor != "" || $selectedPublisher != "" || $selectedMemo != "")
+if($selectedId !== [] || $selectedItemCode !== [] || $selectedPlace !== [] || $selectedState !== [] ||
+   $selectedTitle !== [] || $selectedAuthor !== [] || $selectedPublisher !== [] || $selectedMemo !== [])
 {
-  $itemList = $db->searchItem($selectedItemCode, $selectedPlace, $selectedState, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
+  $itemList = $db->searchItem($selectedPlace, $selectedState, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
   $itemCount = count($itemList);
   if($itemCount == 0)
   {
@@ -126,13 +126,15 @@ printMessage($message);
 
 <table border=0>
 
-<tr><td>商品コード <td><input type="text" name="itemCode" size="40" value="<?= $selectedItemCode ?>">
+<tr><td>DB内ID <td><input type="text" name="id" size="40" value="<?= implode(" ", $selectedId) ?>">
+
+<tr><td>商品コード <td><input type="text" name="itemCode" size="40" value="<?= implode(" ", $selectedItemCode) ?>">
 
 <tr><td>保管場所
 <td><select name="place">
  <option value="0">指定しない</option>
  <?php foreach ($placeList as $place) { ?>
- <option value="<?= htmlspecialchars($place['id']); ?>"<?php if($place['id'] == $selectedPlace) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
+ <option value="<?= htmlspecialchars($place['id']); ?>"<?php if($place['id'] == $selectedPlace[0]) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
  <?php } ?>
 </select>
 <br>
@@ -141,14 +143,14 @@ printMessage($message);
 <td><select name="state">
  <option value="0">指定しない</option>
  <?php foreach ($stateList as $state) { ?>
- <option value="<?= htmlspecialchars($state['id']); ?>"<?php if($state['id'] == $selectedState) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
+ <option value="<?= htmlspecialchars($state['id']); ?>"<?php if($state['id'] == $selectedState[0]) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
  <?php } ?>
 </select>
 
-<tr><td>タイトル   <td><input type="text" name="title"      size="40" value="<?= $selectedTitle ?>">
-<tr><td>著者       <td><input type="text" name="author"     size="40" value="<?= $selectedAuthor ?>">
-<tr><td>出版社     <td><input type="text" name="publisher"  size="40" value="<?= $selectedPublisher ?>">
-<tr><td>メモ       <td><input type="text" name="memo"       size="40" value="<?= $selectedMemo ?>">
+<tr><td>タイトル   <td><input type="text" name="title"      size="40" value="<?= implode(" ", $selectedTitle) ?>">
+<tr><td>著者       <td><input type="text" name="author"     size="40" value="<?= implode(" ", $selectedAuthor) ?>">
+<tr><td>出版社     <td><input type="text" name="publisher"  size="40" value="<?= implode(" ", $selectedPublisher) ?>">
+<tr><td>メモ       <td><input type="text" name="memo"       size="40" value="<?= implode(" ", $selectedMemo) ?>">
 
 <tr><td>&nbsp;     <td><input type="submit" value="この条件で検索する">
 

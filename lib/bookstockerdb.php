@@ -41,10 +41,9 @@ require_once(__DIR__ . '/function.php');
 //   $db->deleteState($id);                          // エラー時FALSEが帰る
 //
 // ・所持品(itemテーブル)を操作
-//   $itemList = $db->getItemList($place = 0, $state = 0));
+//   $itemList = $db->searchItem($place, $state, $itemId, $itemCode, $title, $author, $publisher, $memo);
 //                                                   // アイテム一覧を得る。二重連想配列が帰る
-//   $itemList = $db->searchItem($itemid, $place, $state, $title, $author, $publisher, $memo);
-//                                                   // 詳細な検索
+//                                                   // 各パラメータは配列であることに注意
 //   $db->addItem($datasource, $itemid, $title, $author, $publisher, $place, $state);
 //                                                   // アイテム追加。エラー時FALSEが帰る。検索のために Amazon にあるアイテムでも $title 等を指定すること。
 //                                                   // $datasource には BookStockerDB::DataSource_Amazon または BookStockerDB::DataSource_UserDefined を指定
@@ -406,90 +405,97 @@ class BookStockerDB
 
 
 
-
-  // ---------- itemを得る ----------
-  public function getItemList($place = 0, $state = 0)
-  {
-    return $this->searchItem(NULL, $place, $state, NULL, NULL, NULL, NULL);
-  }
-
-
-
   // ---------- 詳細検索 ----------
-  public function searchItem($itemid, $place, $state, $title, $author, $publisher, $memo)
+  public function searchItem($place = [], $state = [], $itemId = NULL, $itemCode = NULL, $title = NULL, $author = NULL, $publisher = NULL, $memo = NULL)
   {
     if($this->dbh != NULL)
     {
 
       $searchString = "";
-      $placeHolder = [];
+      $placeHolderI = [];  // int型のplaceholderを保持
+      $placeHolderS = [];  // String型のplaceholderを保持
 
-      if(isset($itemid) && $itemid != "")
+      // まずは int 型の WHERE 句を先に作成
+      if(isset($itemId) && is_array($itemId) && count($itemId) > 0)
       {
-        $arr = preg_split("/\s+/", $itemid, -1, PREG_SPLIT_NO_EMPTY);
-        $placeHolder = array_merge($placeHolder, $arr);
-	foreach ($arr as $a)
-	{
-	  $searchString .= " AND itemid like ?";
-	}
+        $searchString .= " AND item.id in (";
+        foreach($itemId as $a) { $searchString .= "?,"; }
+        $searchString = rtrim($searchString, ",");
+        $searchString .= ")";
+        $placeHolderI = array_merge($placeHolderI, $itemId);
       }
 
-      if(isset($title) && $title != "")
+      if(isset($place) && is_array($place) && count($place) > 0)
       {
-        $arr = preg_split("/\s+/", $title, -1, PREG_SPLIT_NO_EMPTY);
-        $placeHolder = array_merge($placeHolder, $arr);
-	foreach ($arr as $a)
-	{
-	  $searchString .= " AND title like ?";
-	}
+        $searchString .= " AND place.id in (";
+        foreach($place as $a) { $searchString .= "?,"; }
+        $searchString = rtrim($searchString, ",");
+        $searchString .= ")";
+        $placeHolderI = array_merge($placeHolderI, $place);
       }
 
-      if(isset($author) && $author != "")
+      if(isset($state) && is_array($state) && count($state) > 0)
       {
-        $arr = preg_split("/\s+/", $author, -1, PREG_SPLIT_NO_EMPTY);
-        $placeHolder = array_merge($placeHolder, $arr);
-	foreach ($arr as $a)
-	{
-	  $searchString .= " AND author like ?";
-	}
+        $searchString .= " AND state.id in (";
+        foreach($state as $a) { $searchString .= "?,"; }
+        $searchString = rtrim($searchString, ",");
+        $searchString .= ")";
+        $placeHolderI = array_merge($placeHolderI, $state);
       }
 
-      if(isset($publisher) && $publisher != "")
+      // 次に String 型の  WHERE 句を作成
+      if(isset($itemCode) && is_array($itemCode) && count($itemCode) > 0)
       {
-        $arr = preg_split("/\s+/", $publisher, -1, PREG_SPLIT_NO_EMPTY);
-        $placeHolder = array_merge($placeHolder, $arr);
-	foreach ($arr as $a)
-	{
-	  $searchString .= " AND publisher like ?";
-	}
+        foreach ($itemCode as $a)
+  	    {
+      	  $searchString .= " AND itemid like ?";
+      	}
+        $placeHolderS = array_merge($placeHolderS, $itemCode);
       }
 
-      if(isset($memo) && $memo != "")
+      if(isset($title) && is_array($title) && count($title) > 0)
       {
-        $arr = preg_split("/\s+/", $memo, -1, PREG_SPLIT_NO_EMPTY);
-        $placeHolder = array_merge($placeHolder, $arr);
-	foreach ($arr as $a)
-	{
-	  $searchString .= " AND memo like ?";
-	}
+        foreach ($title as $a)
+  	    {
+      	  $searchString .= " AND title like ?";
+      	}
+        $placeHolderS = array_merge($placeHolderS, $title);
       }
 
-      if($place != 0)
+      if(isset($author) && is_array($author) && count($author) > 0)
       {
-        $searchString .= " AND item.place = ?";
+        foreach ($author as $a)
+  	    {
+      	  $searchString .= " AND author like ?";
+      	}
+        $placeHolderS = array_merge($placeHolderS, $author);
       }
 
-      if($state != 0)
+      if(isset($publisher) && is_array($publisher) && count($publisher) > 0)
       {
-        $searchString .= " AND item.state = ?";
+        foreach ($publisher as $a)
+  	    {
+      	  $searchString .= " AND publisher like ?";
+      	}
+        $placeHolderS = array_merge($placeHolderS, $publisher);
       }
 
+      if(isset($memo) && is_array($memo) && count($memo) > 0)
+      {
+        foreach ($memo as $a)
+  	    {
+      	  $searchString .= " AND memo like ?";
+      	}
+        $placeHolderS = array_merge($placeHolderS, $memo);
+      }
 
+      // $searchString および $placeHolderI, $placeHolderS 完成
       if($searchString != "")
       {
-        $searchString = "WHERE " . substr($searchString, 5);
+        $searchString = "WHERE " . substr($searchString, 5);  // 最初の " AND " を除いたものを付ける
       }
 
+      // SQL実行
       $preparedSql = $this->dbh->prepare("
         SELECT item.id, datasource, itemid, place.id AS pid, place.place, state.id AS sid, state.state, title, author, publisher, memo FROM item
         INNER JOIN place ON item.place = place.id
@@ -497,13 +503,17 @@ class BookStockerDB
         $searchString .
         " ORDER BY item.id DESC;");
 
-      for ($p=0; $p<count($placeHolder);  $p++)
+      for ($p=0; $p<count($placeHolderI);  $p++)
       {
-        $preparedSql->bindValue(($p+1), (String)("%" . (String)$placeHolder[$p] . "%"), PDO::PARAM_STR);
+        $preparedSql->bindValue(($p+1), (int)$placeHolderI[$p], PDO::PARAM_INT);
       }
-      if($place != 0) { $preparedSql->bindValue(++$p, (int)$place, PDO::PARAM_INT);  }
-      if($state != 0) { $preparedSql->bindValue(++$p, (int)$state, PDO::PARAM_INT);  }
 
+      for ($q=0; $q<count($placeHolderS);  $q++)
+      {
+        $preparedSql->bindValue(($p+$q+1), (String)("%" . (String)$placeHolderS[$q] . "%"), PDO::PARAM_STR);
+      }
+
+      // 結果を得る
       $result = $preparedSql->execute();
       if($result == TRUE)
       {

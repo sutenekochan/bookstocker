@@ -2,6 +2,7 @@
 * HTMLのGET/POST methodで送られる文字列に関する情報です。
 * 指定方法：GETはURLのパラメタとしてQUERY_STRINGで指定、POSTはPOST_MESSAGEとして指定を表します。
 * GETとPOSTの両方に指定されている場合はGETを優先します。
+* 複数のパラメータを指定する場合は、パラメータは カンマ " " \r \t \n 等で区切ります。
 
 
 ***

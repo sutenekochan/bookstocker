@@ -37,16 +37,16 @@ require_once(__DIR__. '/lib/header.php');
 
 
 // ---------- 今後の処理のための変数をセット(1) 各種情報変更前にセットする情報 ---------- 
-$selectedPlace = 0;
-if(isset($arg["place"]))
+$selectedPlace = [];
+if(isset($arg["place"]) && $arg["place"] !== [0])
 {
-  $selectedPlace = $arg["place"][0];
+  $selectedPlace = $arg["place"];
 }
 
-$selectedState = 0;
-if(isset($arg["state"]))
+$selectedState = [];
+if(isset($arg["state"]) && $arg["state"] !== [0])
 {
-  $selectedState = $arg["state"][0];
+  $selectedState = $arg["state"];
 }
 
 $placeList = $db->getPlaceList();
@@ -185,7 +185,7 @@ if(isset($arg["action"]))
 
 
 // ---------- 今後の処理のための変数をセット(2) 各種情報変更後にセットする情報 ---------- 
-$itemList = $db->getItemList($selectedPlace, $selectedState);
+$itemList = $db->searchItem($selectedPlace, $selectedState);
 
 $itemCount = count($itemList);
 $pageCount = floor(($itemCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
@@ -285,7 +285,7 @@ printMessage($message);
 <select name="place" onchange="this.form.submit()">
  <option value="0">指定しない</option>
  <?php foreach ($placeList as $place) { ?>
- <option value="<?= htmlspecialchars($place['id']); ?>"<?php if($place['id'] == $selectedPlace) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
+ <option value="<?= htmlspecialchars($place['id']); ?>"<?php if($place['id'] == $selectedPlace[0]) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
  <?php } ?>
 </select>
 &nbsp;&nbsp;
@@ -294,7 +294,7 @@ printMessage($message);
 <select name="state" onchange="this.form.submit()">
  <option value="0">指定しない</option>
  <?php foreach ($stateList as $state) { ?>
- <option value="<?= htmlspecialchars($state['id']); ?>"<?php if($state['id'] == $selectedState) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
+ <option value="<?= htmlspecialchars($state['id']); ?>"<?php if($state['id'] == $selectedState[0]) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
  <?php } ?>
 </select>
 
