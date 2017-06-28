@@ -119,7 +119,7 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
    </span>
   <?php } ?>
 
-   <?php if ($detailPageUrl !== NULL) { ?><a target="_blank" href="<?= $detailPageUrl ?>"><?php } ?><?= $title ?><?php if ($detailPageUrl !== NULL) { ?></a><?php } ?><br>
+   <a href="search.php?id=<?= htmlspecialchars($item["id"]); ?>"><?= $title ?></a><br>
 
    <?= $author ?><br>
    <span class="detailText"><?= $publisher ?>
