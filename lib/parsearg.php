@@ -267,6 +267,7 @@ class requestParser
 
     foreach(explode(",", $in) as $r)
     {
+      $r = trim($r);
       if(containsHtmlSqlSpecialCharactors($r)) { $flag = FALSE;  }
       else if($allowNull || $r != "")          { array_push($out, (String)($r));  }
       else                                     { $flag = FALSE;  }
