@@ -26,7 +26,7 @@ if(PHP_SAPI == 'cli') {
   $rp = new requestParser($_GET, $_POST);
 }
 $arg = $rp->getAllArg();
-array_push($messages, $rp->getErrorMessagesAndClear);
+$messages += $rp->getErrorMessagesAndClear();
 
 require_once(__DIR__. '/lib/header.php');
 
@@ -61,7 +61,7 @@ if(isset($arg["action"]))
       if($ret === FALSE)
       {
         array_push($messages, "追加に失敗しました (db)");
-        array_push($messages, $db->getErrorMessagesAndClear());
+        $messages += $db->getErrorMessagesAndClear();
       }
       else
       {
@@ -99,7 +99,7 @@ if(isset($arg["action"]))
         if($newItem === NULL)
         {
           array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . $itemid . "])");
-          array_push($messages,  $ama->getErrorMessagesAndClear());
+          $messages += $ama->getErrorMessagesAndClear();
         }
         else
         {
@@ -107,7 +107,7 @@ if(isset($arg["action"]))
           if($ret === FALSE)
           {
             array_push($messages, "追加に失敗しました (db)");
-            array_push($messages, $db->getErrorMessagesAndClear());
+            $messages += $db->getErrorMessagesAndClear();
           }
           else
           {
@@ -126,7 +126,7 @@ if(isset($arg["action"]))
     if($ret === FALSE)
     {
       array_push($messages, "削除に失敗しました");
-      array_push($messages, $db->getErrorMessagesAndClear());
+      $messages += $db->getErrorMessagesAndClear();
     }
     else
     {
@@ -144,7 +144,7 @@ if(isset($arg["action"]))
       if($ret === FALSE)
       {
         array_push($messages, "保管場所の変更に失敗しました");
-        array_push($messages, $db->getErrorMessagesAndClear());
+        $messages += $db->getErrorMessagesAndClear();
       }
       else
       {
@@ -160,7 +160,7 @@ if(isset($arg["action"]))
      if($ret === FALSE)
       {
         array_push($messages, "ステータスの変更に失敗しました");
-        array_push($messages, $db->getErrorMessagesAndClear());
+        $messages += $db->getErrorMessagesAndClear();
       }
       else
       {
@@ -176,7 +176,7 @@ if(isset($arg["action"]))
       if($ret === FALSE)
       {
         array_push($messages, "メモの変更に失敗しました");
-        array_push($messages, $db->getErrorMessagesAndClear());
+        $messages += $db->getErrorMessagesAndClear();
       }
       else
       {

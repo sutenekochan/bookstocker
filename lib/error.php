@@ -21,11 +21,12 @@ function printMessages($messages)
     {
       $i = htmlspecialchars($i);
       //$i = str_replace("\n", "<br>\n", $i);
-?><?= $i ?><?php
+?>
+<?= $i ?><br>
+<?php
     }
 ?>
 </div>
-<br>
 <br>
 <?php
   }

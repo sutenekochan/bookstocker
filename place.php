@@ -22,7 +22,7 @@ if(PHP_SAPI == 'cli') {
   $rp = new requestParser($_GET, $_POST);
 }
 $arg = $rp->getAllArg();
-array_push($messages, $rp->getErrorMessagesAndClear);
+$messages+= $rp->getErrorMessagesAndClear();
 
 require_once(__DIR__. '/lib/header.php');
 
@@ -36,7 +36,7 @@ if(isset($arg["action"]))
     if($ret1 === FALSE)
     {
       array_push($messages, "追加に失敗しました");
-      array_push($messages, $db->getErrorMessagesAndClear());
+      $messages += $db->getErrorMessagesAndClear();
     }
     else
     {
@@ -50,7 +50,7 @@ if(isset($arg["action"]))
     if($ret2 === FALSE)
     {
       array_push($messages, "削除に失敗しました");
-      array_push($messages, $db->getErrorMessagesAndClear());
+      $messages += $db->getErrorMessagesAndClear();
     }
     else
     {

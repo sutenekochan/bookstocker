@@ -26,7 +26,7 @@ if(PHP_SAPI == 'cli') {
   $rp = new requestParser($_GET, $_POST);
 }
 $arg = $rp->getAllArg();
-array_push($messages, $rp->getErrorMessagesAndClear);
+$messages += $rp->getErrorMessagesAndClear();
 
 require_once(__DIR__. '/lib/header.php');
 
