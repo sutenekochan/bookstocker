@@ -85,6 +85,7 @@ $placeList = $db->getPlaceList();
 $stateList = $db->getStateList();
 
 
+$isSearchResultPage = FALSE;  // 検索結果を表示する動作か否か
 if($selectedId !== [] || $selectedItemCode !== [] || $selectedPlace !== [] || $selectedState !== [] ||
    $selectedTitle !== [] || $selectedAuthor !== [] || $selectedPublisher !== [] || $selectedMemo !== [])
 {
@@ -97,10 +98,12 @@ if($selectedId !== [] || $selectedItemCode !== [] || $selectedPlace !== [] || $s
   else if ($itemCount > ITEMS_PER_PAGE)
   {
     array_push($messages, $itemCount . " 件の項目が見つかりました。1ページに表示できるサイズを超えたため、最初の" . ITEMS_PER_PAGE . "件を表示します");
+    $isSearchResultPage = TRUE;
   }
   else
   {
     array_push($messages, $itemCount . " 件の項目が見つかりました");
+    $isSearchResultPage = TRUE;
   }
 }
 else
@@ -109,6 +112,13 @@ else
 }
 
 
+if($isSearchResultPage)
+{
+  $searchFormPrintDefault = "none";  // 検索フォームを表示するか否か
+} else {
+  $searchFormPrintDefault = "block";
+}
+
 // ---------- メッセージがある場合のみメッセージ表示 ---------- 
 printMessages($messages);
 
@@ -116,7 +126,26 @@ printMessages($messages);
 // ---------- 検索フォーム表示 ----------
 ?>
 
-<br>
+<script><!--
+  var searchFormDisplayState = "<?= $searchFormPrintDefault ?>";
+  function toggleSearchFormDisplay()
+  {
+    if(searchFormDisplayState == "block")
+    {
+      document.getElementById("searchForm").style.display="none";
+      searchFormDisplayState = "none";
+    } else {
+      document.getElementById("searchForm").style.display="block";
+      searchFormDisplayState = "block";
+    }
+  }
+
+-->
+</script>
+
+<a href="#" onclick="toggleSearchFormDisplay();">▲▼</a>
+
+<div id="searchForm" style="display: <?= $searchFormPrintDefault ?>">
 <form method="GET" action="search.php">
 
 <table border=0>
@@ -151,8 +180,8 @@ printMessages($messages);
 
 </table>
 
-
 </form>
+</div>
 
 <br>
 <hr>
