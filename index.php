@@ -273,35 +273,49 @@ printMessages($messages);
 </div>
 </form>
 
-<br>
 <hr>
 
 
 <?php
 // ---------- フィルタ ---------- 
 ?>
-<span class="subTitleText">フィルタ：</span>&nbsp;
 
 <form class="filterFormArea" method="GET" action="index.php">
 
-保管場所
-<select name="place" onchange="this.form.submit()">
+<table border=0>
+<tr>
+
+<td>保管場所
+<td><select name="place" id="filterPlace" onchange="this.form.submit()">
  <option value="0">指定しない</option>
  <?php foreach ($placeList as $place) { ?>
  <option value="<?= htmlspecialchars($place['id']); ?>"<?php if($place['id'] == $selectedPlace[0]) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
  <?php } ?>
 </select>
-&nbsp;&nbsp;
 
-未読既読状態
-<select name="state" onchange="this.form.submit()">
+<td>
+<script><!--
+function reseetFormValue()
+{
+  document.getElementById("filterPlace").value = 0;
+  document.getElementById("filterState").value = 0;
+}
+--></script>
+<input type="button" value="フィルタ条件のリセット" onclick="reseetFormValue(); this.form.submit()">
+
+<tr>
+<td>未読既読状態
+<td><select name="state" id="filterState" onchange="this.form.submit()">
  <option value="0">指定しない</option>
  <?php foreach ($stateList as $state) { ?>
  <option value="<?= htmlspecialchars($state['id']); ?>"<?php if($state['id'] == $selectedState[0]) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
  <?php } ?>
 </select>
 
+</table>
+
 </form>
+
 <hr>
 
 <?php
