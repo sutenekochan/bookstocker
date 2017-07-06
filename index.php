@@ -8,7 +8,7 @@ require_once(__DIR__ . '/lib/bookstockerdb.php');
 require_once(__DIR__ . '/lib/amazonapi.php');
 require_once(__DIR__ . '/lib/itemlist.php');
 
-$message = "";
+$messages = [];
 
 $db = BookStockerDB::getInstance();
 if($db === NULL)
@@ -26,12 +26,7 @@ if(PHP_SAPI == 'cli') {
   $rp = new requestParser($_GET, $_POST);
 }
 $arg = $rp->getAllArg();
-
-$rpMessage = $rp->getErrorMessage();
-foreach($rpMessage as $i)
-{
-  $message .= "$i\n";
-}
+array_push($messages, $rp->getErrorMessagesAndClear);
 
 require_once(__DIR__. '/lib/header.php');
 
@@ -65,11 +60,12 @@ if(isset($arg["action"]))
       $ret = $db->addItem(BookStockerDB::DataSource_UserDefined , $arg["newItemCode"], $arg["newTitle"], $arg["newAuthor"], $arg["newPublisher"], $arg["newPlace"], $arg["newState"]);
       if($ret === FALSE)
       {
-        $message = "追加に失敗しました (db) \n" . $db->getLastError();
+        array_push($messages, "追加に失敗しました (db)");
+        array_push($messages, $db->getErrorMessagesAndClear());
       }
       else
       {
-        $message = "項目を追加しました";
+        array_push($messages, "項目を追加しました");
       }
     }
 
@@ -86,7 +82,8 @@ if(isset($arg["action"]))
 
       if($itemid === NULL)
       {
-        $message = "追加に失敗しました\n必要なパラメータがセットされていないか、AmazonのURLからパラメータを推測できません";
+        array_push($messages, "追加に失敗しました");
+        array_push($messages, "必要なパラメータがセットされていないか、AmazonのURLからパラメータを推測できません");
       }
       else
       {
@@ -101,18 +98,20 @@ if(isset($arg["action"]))
 
         if($newItem === NULL)
         {
-          $message = "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . $itemid . "])\n" . $ama->getLastError();
+          array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . $itemid . "])");
+          array_push($messages,  $ama->getErrorMessagesAndClear());
         }
         else
         {
           $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $itemid, $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
           if($ret === FALSE)
           {
-            $message = "追加に失敗しました (db)\n" . $db->getLastError();
+            array_push($messages, "追加に失敗しました (db)");
+            array_push($messages, $db->getErrorMessagesAndClear());
           }
           else
           {
-            $message = "項目を追加しました";
+            array_push($messages, "項目を追加しました");
           }
         }
       }
@@ -126,11 +125,12 @@ if(isset($arg["action"]))
     $ret = $db->deleteItem($arg["targetItem"]);
     if($ret === FALSE)
     {
-      $message = "削除に失敗しました\n" . $db->getLastError();
+      array_push($messages, "削除に失敗しました");
+      array_push($messages, $db->getErrorMessagesAndClear());
     }
     else
     {
-      $message = "項目を削除しました";
+      array_push($messages, "項目を削除しました");
     }
   }
 
@@ -143,11 +143,12 @@ if(isset($arg["action"]))
       $ret = $db->modifyItemPlace($arg["targetItem"], $arg["newPlace"]);
       if($ret === FALSE)
       {
-        $message = "保管場所の変更に失敗しました\n" . $db->getLastError();
+        array_push($messages, "保管場所の変更に失敗しました");
+        array_push($messages, $db->getErrorMessagesAndClear());
       }
       else
       {
-        $message = "保管場所を変更しました";
+        array_push($messages, "保管場所を変更しました");
       }
     }
 
@@ -158,11 +159,12 @@ if(isset($arg["action"]))
       $ret = $db->modifyItemState($arg["targetItem"], $arg["newState"]);
      if($ret === FALSE)
       {
-        $message = "ステータスの変更に失敗しました\n" . $db->getLastError();
+        array_push($messages, "ステータスの変更に失敗しました");
+        array_push($messages, $db->getErrorMessagesAndClear());
       }
       else
       {
-        $message = "ステータスを変更しました";
+        array_push($messages, "ステータスを変更しました");
       }
     }
 
@@ -173,11 +175,12 @@ if(isset($arg["action"]))
       $ret = $db->modifyItemMemo($arg["targetItem"], $arg["newMemo"]);
       if($ret === FALSE)
       {
-        $message = "メモの変更に失敗しました\n" . $db->getLastError();
+        array_push($messages, "メモの変更に失敗しました");
+        array_push($messages, $db->getErrorMessagesAndClear());
       }
       else
       {
-        $message = "メモを変更しました";
+        array_push($messages, "メモを変更しました");
       }
     }
   }
@@ -202,7 +205,7 @@ else
 
 
 // ---------- メッセージがある場合のみメッセージ表示 ---------- 
-printMessage($message);
+printMessages($messages);
 
 
 // ---------- 新規登録 ---------- -->

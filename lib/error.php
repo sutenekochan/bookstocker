@@ -10,20 +10,25 @@ function error_exit($e)
 
 
 // ---------- Warningをtextareaで表示 ----------
-function printMessage($message)
+function printMessages($messages)
 {
-  if($message !== "")
+  if(count($messages) > 0)
   {
-    $message = htmlspecialchars($message);
-    $message = str_replace("\n", "<br>\n", $message);
 ?>
-<div class="messagetext"><?= $message ?></div>
+<div class="messagetext">
+<?php
+    foreach($messages as $i)
+    {
+      $i = htmlspecialchars($i);
+      //$i = str_replace("\n", "<br>\n", $i);
+?><?= $i ?><?php
+    }
+?>
+</div>
 <br>
 <br>
 <?php
   }
-
-
 }
 
 

@@ -33,7 +33,7 @@
 // $arg = $rp->getAllArg();
 //   全てのparse済引数を連想配列で返す
 //
-// $errString = $rp->getErrorMessage();
+// $errString = $rp->getErrorMessagesAndClear();
 //   エラー文字列を配列で返す。エラーがないならNULLになる
 //
 //
@@ -52,7 +52,7 @@
 //
 //   引数  ：$str1      : parse対象の文字列(引数がNULLの場合もありうる)
 //           $str2      :
-//           $paramName : errorMessage に入れるパラメータの名前
+//           $paramName : errorMessages に入れるパラメータの名前
 //
 //
 // $arr = function parseIntArraySub($in);                // int型が","で区切られた文字列をparseして配列にする。戻り値[]は値がなかったことを、NULLはエラーがあったことを示す
@@ -64,7 +64,7 @@ require_once(__DIR__ . '/function.php');
 class requestParser
 {
   private $arg;
-  private $errorMessage = array();
+  private $errorMessages = [];
 
 
   public static function createArgArrayFromArgv($argv)
@@ -119,9 +119,11 @@ class requestParser
 
 
   // ---------- エラーを得る ----------
-  public function getErrorMessage()
+  public function getErrorMessagesAndClear()
   {
-    return $this->errorMessage;
+    $msgs = $this->errorMessages;
+    $this->errorMessages = [];
+    return $msgs;
   }
 
 
@@ -134,7 +136,7 @@ class requestParser
     if($tmpArr !== NULL && $tmpArr !== [])
     {
       if(count($tmpArr) == 1) { $out = array_shift($tmpArr);  }
-      else                    {  array_push($this->errorMessage, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
+      else                    {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
     }
 
     return $out;
@@ -149,7 +151,7 @@ class requestParser
     if($tmpArr !== NULL && $tmpArr !== [])
     {
       if(count($tmpArr) == 1) { $out = array_shift($tmpArr);  }
-      else                    {  array_push($this->errorMessage, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
+      else                    {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
     }
 
     return $out;
@@ -166,7 +168,7 @@ class requestParser
     if($tmpArr !== NULL && $tmpArr !== [])
     {
       if(count($tmpArr) == 1) { $out = array_shift($tmpArr);  }
-      else                    {  array_push($this->errorMessage, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
+      else                    {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
     }
     return $out;
   }
@@ -180,7 +182,7 @@ class requestParser
     if($tmpArr !== NULL && $tmpArr !== [])
     {
       if(count($tmpArr) == 1) { $out = array_shift($tmpArr);  }
-      else                    {  array_push($this->errorMessage, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
+      else                    {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
     }
 
     return $out;
@@ -192,7 +194,7 @@ class requestParser
   {
     $out = NULL;
 
-    if(isset($arr1[$paramName]) && isset($arr2[$paramName])) {  array_push($this->errorMessage, "GETとPOSTの両方でパラメータ[" . $paramName . "]が指定されました");  }
+    if(isset($arr1[$paramName]) && isset($arr2[$paramName])) {  array_push($this->errorMessages, "GETとPOSTの両方でパラメータ[" . $paramName . "]が指定されました");  }
     else if(isset($arr1[$paramName]))                        {  $out = $this->parseIntArray1($arr1, $paramName);  }
     else if(isset($arr2[$paramName]))                        {  $out = $this->parseIntArray1($arr2, $paramName);  }
 
@@ -207,7 +209,7 @@ class requestParser
     if(isset($arr1[$paramName]))
     {
       $out = $this->parseIntArraySub($arr1[$paramName]);
-      if($out === NULL) {  array_push($this->errorMessage, "パラメータ[" . $paramName . "]の値が正しくありません");  }
+      if($out === NULL) {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]の値が正しくありません");  }
     }
 
     return $out;
@@ -241,7 +243,7 @@ class requestParser
   {
     $out = NULL;
 
-    if(isset($arr1[$paramName]) && isset($arr2[$paramName])) {  array_push($this->errorMessage, "GETとPOSTの両方でパラメータ[" . $paramName . "]が指定されました");  }
+    if(isset($arr1[$paramName]) && isset($arr2[$paramName])) {  array_push($this->errorMessages, "GETとPOSTの両方でパラメータ[" . $paramName . "]が指定されました");  }
     else if(isset($arr1[$paramName]))                        {  $out = $this->parseStringArray1($arr1, $paramName);  }
     else if(isset($arr2[$paramName]))                        {  $out = $this->parseStringArray1($arr2, $paramName);  }
 
@@ -256,7 +258,7 @@ class requestParser
     if(isset($arr1[$paramName]))
     {
       $out = $this->parseStringArraySub($arr1[$paramName]);
-      if($out === NULL) {  array_push($this->errorMessage, "パラメータ[" . $paramName . "]の値が正しくありません");  }
+      if($out === NULL) {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]の値が正しくありません");  }
     }
 
     return $out;

@@ -8,7 +8,7 @@ require_once(__DIR__ . '/lib/bookstockerdb.php');
 require_once(__DIR__ . '/lib/amazonapi.php');
 require_once(__DIR__ . '/lib/itemlist.php');
 
-$message = "";
+$messages = [];
 
 $db = BookStockerDB::getInstance();
 if($db === NULL)
@@ -26,12 +26,7 @@ if(PHP_SAPI == 'cli') {
   $rp = new requestParser($_GET, $_POST);
 }
 $arg = $rp->getAllArg();
-
-$rpMessage = $rp->getErrorMessage();
-foreach($rpMessage as $i)
-{
-  $message .= "$i\n";
-}
+array_push($messages, $rp->getErrorMessagesAndClear);
 
 require_once(__DIR__. '/lib/header.php');
 
@@ -97,15 +92,15 @@ if($selectedId !== [] || $selectedItemCode !== [] || $selectedPlace !== [] || $s
   $itemCount = count($itemList);
   if($itemCount == 0)
   {
-    $message = "検索条件にあう項目が見つかりませんでした";
+    array_push($messages, "検索条件にあう項目が見つかりませんでした");
   }
   else if ($itemCount > ITEMS_PER_PAGE)
   {
-    $message = $itemCount . " 件の項目が見つかりました。1ページに表示できるサイズを超えたため、最初の" . ITEMS_PER_PAGE . "件を表示します";
+    array_push($messages, $itemCount . " 件の項目が見つかりました。1ページに表示できるサイズを超えたため、最初の" . ITEMS_PER_PAGE . "件を表示します");
   }
   else
   {
-    $message = $itemCount . " 件の項目が見つかりました";
+    array_push($messages, $itemCount . " 件の項目が見つかりました");
   }
 }
 else
@@ -115,7 +110,7 @@ else
 
 
 // ---------- メッセージがある場合のみメッセージ表示 ---------- 
-printMessage($message);
+printMessages($messages);
 
 
 // ---------- 検索フォーム表示 ----------

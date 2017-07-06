@@ -28,7 +28,7 @@ require_once(__DIR__ . '/function.php');
 //   $db->init(DB_DSN, DB_USERNAME, DB_PASSWORD);
 //
 // ・エラー情報を文字列で得る
-//   $errString = $db->getLastError();
+//   $errString = $db->getErrorMessagesAndClear();
 //
 // ・場所(placeテーブル)を操作
 //   $placeList = $db->getPlaceList();               // 二重連想配列が帰る
@@ -61,7 +61,7 @@ class BookStockerDB
   private static $singletonInstance;
 
   private $dbh;
-  private $lastErrorString;
+  private $errorMessages;
 
 
   // ---------- 定数 ----------
@@ -225,9 +225,11 @@ class BookStockerDB
 
 
   // ---------- DBのエラー情報を文字列で得る ----------
-  public function getLastError()
+  public function getErrorMessagesAndClear()
   {
-    return $this->lastErrorString;
+    $msgs = $this->errorMessages;
+    $this->errorMessages = [];
+    return $msgs;
   }
 
 
@@ -266,7 +268,7 @@ class BookStockerDB
 
 
   // ---------- placeを追加 ----------
-  // エラー時は FALSE が帰る。エラー内容は getLastError で得られる
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
   public function addPlace($place)
   {
     $ret = FALSE;
@@ -287,7 +289,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 
@@ -297,7 +299,7 @@ class BookStockerDB
 
 
   // ---------- placeを削除 ----------
-  // エラー時は FALSE が帰る。エラー内容は getLastError で得られる
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
   public function deletePlace($id)
   {
     $ret = FALSE;
@@ -317,7 +319,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 
@@ -345,7 +347,7 @@ class BookStockerDB
 
 
   // ---------- stateを追加 ----------
-  // エラー時は FALSE が帰る。エラー内容は getLastError で得られる
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
   public function addState($state)
   {
     $ret = FALSE;
@@ -366,7 +368,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 
@@ -376,7 +378,7 @@ class BookStockerDB
 
 
   // ---------- stateを削除 ----------
-  // エラー時は FALSE が帰る。エラー内容は getLastError で得られる
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
   public function deleteState($id)
   {
     $ret = FALSE;
@@ -396,7 +398,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 
@@ -522,7 +524,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
         $result = [];
       }
       return $result;
@@ -536,7 +538,7 @@ class BookStockerDB
 
 
   // ---------- itemを追加 ----------
-  // エラー時は FALSE が帰る。エラー内容は getLastError で得られる
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
   public function addItem($datasource, $itemid, $title, $author, $publisher, $place, $state)
   {
     $ret = FALSE;
@@ -595,7 +597,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 
@@ -605,7 +607,7 @@ class BookStockerDB
 
 
   // ---------- itemを削除 ----------
-  // エラー時は FALSE が帰る。エラー内容は getLastError で得られる
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
   public function deleteItem($id)
   {
     $ret = FALSE;
@@ -625,7 +627,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 
@@ -635,7 +637,7 @@ class BookStockerDB
 
 
   // ---------- item情報の変更 ----------
-  // エラー時は FALSE が帰る。エラー内容は getLastError で得られる
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
   public function modifyItemPlace($itemId, $placeId)
   {
     $ret = FALSE;
@@ -656,7 +658,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 
@@ -684,7 +686,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 
@@ -720,7 +722,7 @@ class BookStockerDB
       else
       {
         $errInfo = $preparedSql->errorInfo();
-        $this->lastErrorString = $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2];
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }
 

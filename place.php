@@ -6,7 +6,7 @@ require_once(__DIR__ . '/lib/function.php');
 require_once(__DIR__ . '/lib/parsearg.php');
 require_once(__DIR__ . '/lib/bookstockerdb.php');
 
-$message = "";
+$messages = [];
 
 $db = BookStockerDB::getInstance();
 if($db === NULL)
@@ -22,12 +22,7 @@ if(PHP_SAPI == 'cli') {
   $rp = new requestParser($_GET, $_POST);
 }
 $arg = $rp->getAllArg();
-
-$rpMessage = $rp->getErrorMessage();
-foreach($rpMessage as $i)
-{
-  $message .= "$i\n";
-}
+array_push($messages, $rp->getErrorMessagesAndClear);
 
 require_once(__DIR__. '/lib/header.php');
 
@@ -40,11 +35,12 @@ if(isset($arg["action"]))
     $ret1 = $db->addPlace($arg["newPlace"]);
     if($ret1 === FALSE)
     {
-      $message = "追加に失敗しました (" . $db->getLastError() . ")";
+      array_push($messages, "追加に失敗しました");
+      array_push($messages, $db->getErrorMessagesAndClear());
     }
     else
     {
-      $message = "項目を追加しました";
+      array_push($messages, "項目を追加しました");
     }
   }
 
@@ -53,18 +49,19 @@ if(isset($arg["action"]))
     $ret2 = $db->deletePlace($arg["targetPlace"]);
     if($ret2 === FALSE)
     {
-      $message = "削除に失敗しました (" . $db->getLastError() . ")";
+      array_push($messages, "削除に失敗しました");
+      array_push($messages, $db->getErrorMessagesAndClear());
     }
     else
     {
-      $message = "項目を削除しました";
+      array_push($messages, "項目を削除しました");
     }
   }
 }
 
 
 // ---------- メッセージがある場合のみメッセージ表示 ---------- 
-printMessage($message);
+printMessages($messages);
 
 
 // ---------- 項目一覧 ----------

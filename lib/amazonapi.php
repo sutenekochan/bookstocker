@@ -30,7 +30,7 @@
 //       - 該当商品が複数ある場合がある。レスポンスで帰ってくるのは最初の10個 (Amazon側の制限)
 //       - isbn, jan, asin の検索では、キャッシュに書き込む
 //
-//     $api->getLastError();                                // NULLが返ってきた時にエラー文字列が返る
+//     $api->getErrorMessagesAndClear();                                // NULLが返ってきた時にエラー文字列が返る
 //
 //   ・キャッシュ検索
 //     $itemList7 = $api->searchCacheByAsin(1234567890');
@@ -53,6 +53,7 @@
 //       - XML Parse Error の時は Exception が起こる
 //
 //   ・Amazonがエラーを返したときにエラー情報を得る (XML的には正しいこと)
+//     注意：この関数はXML Parse中にエラーがあったか否かではなくて、XML中にエラーメッセージが記載されてればそれを返す関数
 //    print $itemlist1->getErrorMessage();
 //
 //   ・アイテム情報取得
@@ -104,7 +105,7 @@ class AmazonApi
   private $entryPointHost   = 'ecs.amazonaws.jp';
   private $entryPointPath   = '/onca/xml';
 
-  private $lastErrorString;
+  private $errorMessages;
 
 
   // ---------- コンストラクタ。引数必須 ----------
@@ -285,16 +286,7 @@ class AmazonApi
       $itemList->parseXml($responceText);
       if($itemList->getAsin() == '')
       {
-        $errorMessage = $itemList->getErrorMessage();
-        if($errorMessage != "")
-        {
-          if($this->lastErrorString == "")
-          {
-            $this->lastErrorString = $errorMessage;
-          } else {
-            $this->lastErrorString .= "\n" . $errorMessage;
-          }
-        }
+        array_push($this->errorMessages, $itemList->getErrorMessage());
         $itemList = NULL;
       }
       else
@@ -330,16 +322,7 @@ class AmazonApi
       // 複数商品が含まれている可能性があるので、キャッシュ保存は行わない
       if($itemList->getAsin() == '')
       {
-        $errorMessage = $itemList->getErrorMessage();
-        if($errorMessage != "")
-        {
-          if($this->lastErrorString == "")
-          {
-            $this->lastErrorString = $errorMessage;
-          } else {
-            $this->lastErrorString .= "\n" . $errorMessage;
-          }
-        }
+        array_push($this->errorMessages, $itemList->getErrorMessage());
         $itemList = NULL;
       }
     }
@@ -465,7 +448,7 @@ class AmazonApi
 
     if(count($http_response_header) <= 0)
     {
-      $this->lastErrorString = 'Server does not responce any text.';
+      array_push($this->errorMessages, 'Server does not responce any text.');
       $responceText = NULL;  // 念のため
     }
     else
@@ -478,10 +461,9 @@ class AmazonApi
       switch($responceStatusCode)
       {
         case 200:
-          $this->lastErrorString = '';
           break;
         default:  // 404,503 etc.  この場合でも responceText は not null の場合がある
-          $this->lastErrorString = $responceStatusCode . " " . $responceStatusMessage;
+          array_push($this->errorMessages, $responceStatusCode . " " . $responceStatusMessage);
           break;
       }
     }
@@ -490,10 +472,12 @@ class AmazonApi
   }
 
 
-  // ---------- HTTPのエラー情報を返す ----------
-  public function getLastError()
+  // ---------- エラー情報を返す ----------
+  public function getErrorMessagesAndClear()
   {
-    return $this->lastErrorString;
+    $msgs = $this->errorMessages;
+    $this->errorMessages = [];
+    return $msgs;
   }
 
 
