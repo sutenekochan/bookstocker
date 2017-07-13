@@ -44,8 +44,15 @@ if(isset($arg["state"]) && $arg["state"] !== [0])
   $selectedState = $arg["state"];
 }
 
+$selectedTag = [];
+if(isset($arg["tag"]) && $arg["tag"] !== [0])
+{
+  $selectedTag = $arg["tag"];
+}
+
 $placeList = $db->getPlaceList();
 $stateList = $db->getStateList();
+$tagList   = $db->getTagList();
 
 
 // ---------- 追加処理 ---------- 
@@ -219,7 +226,7 @@ if(isset($arg["action"]))
 
 
 // ---------- 今後の処理のための変数をセット(2) 各種情報変更後にセットする情報 ---------- 
-$itemList = $db->searchItem($selectedPlace, $selectedState);
+$itemList = $db->searchItem($selectedPlace, $selectedState, $selectedTag);
 
 $itemCount = count($itemList);
 $pageCount = floor(($itemCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
@@ -301,8 +308,11 @@ printMessages($messages);
 
 </table>
 
+<br>
+
 </div>
 </form>
+
 
 <hr>
 
@@ -330,6 +340,7 @@ function reseetFormValue()
 {
   document.getElementById("filterPlace").value = 0;
   document.getElementById("filterState").value = 0;
+  document.getElementById("filterTag").value = 0;
 }
 --></script>
 <input type="button" value="フィルタ条件のリセット" onclick="reseetFormValue(); this.form.submit()">
@@ -343,9 +354,23 @@ function reseetFormValue()
  <?php } ?>
 </select>
 
+
+<tr>
+<td>タグ
+<td><select name="tag" id="filterTag" onchange="this.form.submit()">
+ <option value="0">指定しない</option>
+ <?php foreach ($tagList as $tag) { ?>
+ <option value="<?= htmlspecialchars($tag['id']); ?>"<?php if(count($selectedTag) > 0 && $tag['id'] == $selectedTag[0]) { ?> selected<?php } ?>><?= htmlspecialchars($tag["tag"]); ?></option>
+ <?php } ?>
+</select>
+
 </table>
 
 </form>
+
+<hr>
+
+<span class="subTitleText"><?php printItemPageLink("index.php", $currentPage, $pageCount, $selectedPlace, $selectedState, $selectedTag); ?></span><br>
 
 <hr>
 
@@ -354,7 +379,7 @@ function reseetFormValue()
 printItemList($ama, $db, $itemList, ($currentPage - 1) * ITEMS_PER_PAGE + 1, ITEMS_PER_PAGE);
 ?>
 
-<span class="subTitleText">ページ：<?php printItemPageLink("index.php", $currentPage, $pageCount, $selectedPlace, $selectedState); ?></span><br>
+<span class="subTitleText"><?php printItemPageLink("index.php", $currentPage, $pageCount, $selectedPlace, $selectedState, $selectedTag); ?></span><br>
 
 <?php
 // ---------- フッタ ---------- 

@@ -89,6 +89,7 @@ if(isset($arg["memo"]))
 
 $placeList = $db->getPlaceList();
 $stateList = $db->getStateList();
+$tagList   = $db->getTagList();
 
 
 $isSearchResultPage = FALSE;  // 検索結果を表示する動作か否か
@@ -156,6 +157,12 @@ printMessages($messages);
 
 <table border=0>
 
+<tr><td>タイトル   <td><input type="text" name="title"      size="40" value="<?= implode(" ", $selectedTitle) ?>">
+<tr><td>著者       <td><input type="text" name="author"     size="40" value="<?= implode(" ", $selectedAuthor) ?>">
+<tr><td>出版社     <td><input type="text" name="publisher"  size="40" value="<?= implode(" ", $selectedPublisher) ?>">
+<tr><td>メモ       <td><input type="text" name="memo"       size="40" value="<?= implode(" ", $selectedMemo) ?>">
+
+
 <tr><td>DB内ID <td><input type="text" name="id" size="40" value="<?= implode(" ", $selectedId) ?>">
 
 <tr><td>商品コード <td><input type="text" name="itemCode" size="40" value="<?= implode(" ", $selectedItemCode) ?>">
@@ -177,10 +184,14 @@ printMessages($messages);
  <?php } ?>
 </select>
 
-<tr><td>タイトル   <td><input type="text" name="title"      size="40" value="<?= implode(" ", $selectedTitle) ?>">
-<tr><td>著者       <td><input type="text" name="author"     size="40" value="<?= implode(" ", $selectedAuthor) ?>">
-<tr><td>出版社     <td><input type="text" name="publisher"  size="40" value="<?= implode(" ", $selectedPublisher) ?>">
-<tr><td>メモ       <td><input type="text" name="memo"       size="40" value="<?= implode(" ", $selectedMemo) ?>">
+<tr><td>タグ
+<td><select name="tag">
+ <option value="0">指定しない</option>
+ <?php foreach ($tagList as $tag) { ?>
+ <option value="<?= htmlspecialchars($tag['id']); ?>"<?php if(count($selectedTag) > 0 && $tag['id'] == $selectedTag[0]) { ?> selected<?php } ?>><?= htmlspecialchars($tag["tag"]); ?></option>
+ <?php } ?>
+</select>
+
 
 <tr><td>&nbsp;     <td><input type="submit" value="この条件で検索する">
 

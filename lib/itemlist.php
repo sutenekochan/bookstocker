@@ -199,11 +199,12 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
 
 // ---------- 各ページへのリンクを表示 ----------
 
-function printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = [], $currentFilterState = [])
+function printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = [], $currentFilterState = [], $currentFilterTag = [])
 {
   $filterText = "";
   if($currentFilterPlace !== []) {  $filterText .= "&place=" . implode(",", $currentFilterPlace);  }
   if($currentFilterState !== []) {  $filterText .= "&state=" . implode(",", $currentFilterState);  }
+  if($currentFilterTag   !== []) {  $filterText .= "&tag="   . implode(",", $currentFilterTag);    }
   if($filterText != "") { $filterText = substr($filterText, 1); }
 
   ?>

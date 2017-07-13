@@ -45,6 +45,7 @@ require_once(__DIR__ . '/function.php');
 //   $itemList = $db->searchItem($place, $state, $tag, $itemId, $itemCode, $title, $author, $publisher, $memo);
 //                                                   // アイテム一覧を得る。二重連想配列が帰る
 //                                                   // 各パラメータは配列であることに注意
+//                                                   // tid, tag は、$tag を指定した場合のみに得られるので、必ず存在することを仮定しないこと
 //   $db->addItem($datasource, $itemid, $title, $author, $publisher, $place, $state);
 //                                                   // アイテム追加。エラー時FALSEが帰る。検索のために Amazon にあるアイテムでも $title 等を指定すること。
 //                                                   // $datasource には BookStockerDB::DataSource_Amazon または BookStockerDB::DataSource_UserDefined を指定
@@ -54,7 +55,7 @@ require_once(__DIR__ . '/function.php');
 //   $db->modifyItemMemo($itemId, $memo);            // メモを消去したい場合は $memo を NULL にする
 //
 // ・サポート関数
-//   BookStockerDB::makeStringParameter($str);               // $strにHTMLやSQL的にまずい文字が含まれている場合NULL、それ以外だと$strが帰る
+//   BookStockerDB::makeStringParameter($str);       // $strにHTMLやSQL的にまずい文字が含まれている場合NULL、それ以外だと$strが帰る
 
 
 class BookStockerDB
@@ -620,6 +621,8 @@ class BookStockerDB
     {
 
       $searchString = "";
+      $fieldNameString = "";
+      $innerJoinString = "";
       $placeHolderI = [];  // int型のplaceholderを保持
       $placeHolderS = [];  // String型のplaceholderを保持
 
@@ -651,16 +654,16 @@ class BookStockerDB
         $placeHolderI = array_merge($placeHolderI, $state);
       }
 
-/*
       if(isset($tag) && is_array($tag) && count($tag) > 0)
       {
-        $searchString .= " AND tag.id in (";
+        $fieldNameString = ", tagref.tag AS tid, tag.tag AS tag";
+        $innerJoinString = "INNER JOIN tagref ON item.id = tagref.item INNER JOIN tag ON tagref.tag = tag.id";
+        $searchString .= " AND tagref.tag in (";
         foreach($tag as $a) { $searchString .= "?,"; }
         $searchString = rtrim($searchString, ",");
         $searchString .= ")";
-        $placeHolderI = array_merge($placeHolderI, $state);
+        $placeHolderI = array_merge($placeHolderI, $tag);
       }
-*/
 
       // 次に String 型の  WHERE 句を作成
       if(isset($itemCode) && is_array($itemCode) && count($itemCode) > 0)
@@ -715,10 +718,13 @@ class BookStockerDB
       }
 
       // SQL実行
-      $preparedSql = $this->dbh->prepare("
-        SELECT item.id, datasource, itemid, place.id AS pid, place.place, state.id AS sid, state.state, title, author, publisher, memo FROM item
-        INNER JOIN place ON item.place = place.id
-        INNER JOIN state ON item.state = state.id " .
+      $preparedSql = $this->dbh->prepare(
+        "SELECT item.id, datasource, itemid, place.id AS pid, place.place, state.id AS sid, state.state, title, author, publisher, memo " .
+        $fieldNameString .
+        " FROM item " .
+        " INNER JOIN place ON item.place = place.id " .
+        " INNER JOIN state ON item.state = state.id " .
+        $innerJoinString . " " .
         $searchString .
         " ORDER BY item.id DESC;");
 
