@@ -8,8 +8,6 @@
 //   $itemList = $db->getItemList();    // アイテムリスト、アイテムの二重連想配列が入る
 //   $startNum = 1;                     // $itemList の何番目の項目から開始し、いくつ表示するか (最初の項目は1と数える)
 //   $numOfItems = 10;
-//   $placeList = $db->getPlaceList();  // 無い場合は自動取得する
-//   $stateList = $db->getStateList();
 //
 // printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = 0, $currentFilterState = 0)
 //   $url                  // index.php 等を指定
@@ -24,11 +22,8 @@ require_once(dirname(__FILE__) . '/amazonapi.php');
 
 
 
-function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList = NULL, $stateList = NULL)
+function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
 {
-  if(!isset($placeList)) {  $placeList = $db->getPlaceList();  }
-  if(!isset($stateList)) {  $stateList = $db->getStateList();  }
-
   $itemCount = count($itemList);
   $startCount = $startNum - 1;
   if($startCount < 0) { $startCount = 0; }
@@ -83,6 +78,12 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
       if (isset($item['itemid'])) { $message .= "ID="    . $item['itemid'] . " "; }
       if (isset($item['title']))  { $message .= "Title=" . $item['title']; }
     }
+
+  $placeList = $db->getPlaceList();
+  $stateList = $db->getStateList();
+  $tagList   = $db->getTagList();
+
+
 ?>
 
 <?php
@@ -107,7 +108,7 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
     <form method="POST" action="index.php">
      <input type="hidden" name="action" value="delItem">
      <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
-     <input type="image" src="img/delete_red.png" alt="削除" style="height:1.2em;" onclick="return confirm('本当に削除する？')">
+     <input type="image" src="img/delete_red.png" alt="削除" class="deleteIconImage" onclick="return confirm('本当に削除する？')">
      <!-- input type="submit" value="削除" -->
     </form>
    </span>
@@ -158,6 +159,32 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList 
    <input type="text" name="newMemo" size=30 value="<?= htmlspecialchars($memo); ?>" placeholder="一言メモ">
    <input type="submit" value="メモ更新">
    </form>
+
+  <?php $tagRefList = $db->getTagRefList((int)($item["id"])); foreach($tagRefList as $tagRef) { ?>
+  <span class="tagTextArea">
+    <a class="tagTextLink" href="search.php?tag=<?= htmlspecialchars($tagRef['tid']); ?>"><?= htmlspecialchars($tagRef['tag']); ?></a>
+    <form method="POST" action="index.php" class="tagDeleteArea">
+     <input type="hidden" name="action" value="delTagRef">
+     <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
+     <input type="hidden" name="targetTag" value="<?= htmlspecialchars($tagRef['tid']); ?>">
+     <input type="image" src="img/delete_red.png" alt="削除" class="tagDeleteImage">
+     <!-- input type="submit" value="削除" -->
+    </form>
+  </span>&nbsp;
+  <?php } ?>
+
+  <form method="POST" action="index.php" class="tagAddForm">
+    <input type="hidden" name="action" value="addTagRef">
+    <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
+    <select name="targetTag" onchange="this.form.submit()" class="tagAddFormSelect">
+      <option value="0" selected="">タグ追加</option>
+      <?php foreach ($tagList as $tag) {  ?>
+      <option value="<?= htmlspecialchars($tag['id']); ?>"><?= htmlspecialchars($tag["tag"]); ?></option>
+      <?php } ?>
+    </select>
+    <!-- input type="submit" value="タグの追加" -->
+  </form>
+
 
    </div>
    <br clear="all">

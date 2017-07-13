@@ -5,9 +5,11 @@
 * indexは作らない (どうせ作るほどデータ入れないだろう)
 
 # テーブル名
+* item: 所持品
 * place: 保存場所
 * state: 未読既読等の状態
-* item: 所持品
+* tag : タグ名
+* tagref : tag.id と item.id の関連付け
 
 # placeテーブル
 * id : integer primary key autoincrement : テーブル内のIDとして利用
@@ -29,3 +31,12 @@
 * memo : text : メモ
 * 運用として、itemid または title のどちらかが必須 (DB的な制約はつけていない)
 * 運用として、Amazon から取ってきたアイテムの場合、XML から title 等を抜き出して title フィールド等に入れている。これは検索に使うための措置であり、title等が無い場合は検索に引っかからない (一覧表示はされる)
+
+# tagテーブル
+* id : integer primary key autoincrement : テーブル内のIDとして利用
+* tag : text not null unique : タグ名を保持。シリーズ物の漫画のタイトルや「1巻」「最終巻」などが入る
+
+# tagrefテーブル
+* item : integer  not null FOREIGN KEY (item) REFERENCES item(id)
+* tag : integer  not null FOREIGN KEY (tag) REFERENCES tag(id)
+* PRIMARY KEY (item, tag)

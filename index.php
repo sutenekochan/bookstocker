@@ -184,6 +184,37 @@ if(isset($arg["action"]))
       }
     }
   }
+
+
+// ---------- 変更処理(tag) ---------- 
+  else if($arg["action"] == "addTagRef" && isset($arg["targetItem"]) && isset($arg["targetTag"]))
+  {
+    $ret = $db->addTagRef($arg["targetItem"], $arg["targetTag"]);
+    if($ret === FALSE)
+    {
+      array_push($messages, "タグの追加に失敗しました");
+      $messages += $db->getErrorMessagesAndClear();
+    }
+    else
+    {
+      array_push($messages, "タグを追加しました");
+    }
+  }
+
+  else if($arg["action"] == "delTagRef" && isset($arg["targetItem"]) && isset($arg["targetTag"]))
+  {
+    $ret = $db->deleteTagRef($arg["targetItem"], $arg["targetTag"]);
+   if($ret === FALSE)
+    {
+     array_push($messages, "タグの追加に失敗しました");
+      $messages += $db->getErrorMessagesAndClear();
+    }
+    else
+    {
+      array_push($messages, "タグを追加しました");
+    }
+  }
+
 }
 
 
@@ -320,7 +351,7 @@ function reseetFormValue()
 
 <?php
 // ---------- アイテム一覧 ---------- 
-printItemList($ama, $db, $itemList, ($currentPage - 1) * ITEMS_PER_PAGE + 1, ITEMS_PER_PAGE, $placeList, $stateList);
+printItemList($ama, $db, $itemList, ($currentPage - 1) * ITEMS_PER_PAGE + 1, ITEMS_PER_PAGE);
 ?>
 
 <span class="subTitleText">ページ：<?php printItemPageLink("index.php", $currentPage, $pageCount, $selectedPlace, $selectedState); ?></span><br>

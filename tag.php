@@ -30,9 +30,9 @@ require_once(__DIR__. '/lib/header.php');
 // ---------- 追加・削除の処理 ---------- 
 if(isset($arg["action"]))
 {
-  if($arg["action"] == "addState" && isset($arg["newState"]))
+  if($arg["action"] == "addTag" && isset($arg["newTag"]))
   {
-    $ret1 = $db->addState($arg["newState"]);
+    $ret1 = $db->addTag($arg["newTag"]);
     if($ret1 === FALSE)
     {
       array_push($messages, "追加に失敗しました");
@@ -44,9 +44,9 @@ if(isset($arg["action"]))
     }
   }
 
-  else if ($arg["action"] == "delState" && isset($arg["targetState"]))
+  else if ($arg["action"] == "delTag" && isset($arg["targetTag"]))
   {
-    $ret2 = $db->deleteState($arg["targetState"]);
+    $ret2 = $db->deleteTag($arg["targetTag"]);
     if($ret2 === FALSE)
     {
       array_push($messages, "削除に失敗しました");
@@ -65,8 +65,8 @@ printMessages($messages);
 
 
 // ---------- 項目一覧 ----------
-$stateList = $db->getStateList();
-$stateCount = count($stateList);
+$tagList = $db->getTagList();
+$tagCount = count($tagList);
 ?>
 
 <table border=1>
@@ -77,23 +77,23 @@ $stateCount = count($stateList);
  </tr>
 
  <tr>
-  <form method="POST" action="state.php">
+  <form method="POST" action="tag.php">
   <td>新規
-  <input type="hidden" name="action" value="addState">
-  <td><input type="text" name="newState" size="40" value="" >
+  <input type="hidden" name="action" value="addTag">
+  <td><input type="text" name="newTag" size="40" value="" >
   <td><input type="submit" value="追加">
   </form>
  </tr>
 
-<?php foreach ($stateList as $state) { ?>
+<?php foreach ($tagList as $tag) { ?>
  <tr>
-  <td><?= htmlspecialchars($state["id"]); ?>
-  <td><?= htmlspecialchars($state["state"]); ?>
-  <?php if($stateCount >= 2) { ?>
+  <td><?= htmlspecialchars($tag["id"]); ?>
+  <td><?= htmlspecialchars($tag["tag"]); ?>
+  <?php if($tagCount >= 2) { ?>
   <td>
-      <form method="POST" action="state.php">
-      <input type="hidden" name="action" value="delState">
-      <input type="hidden" name="targetState" value="<?= htmlspecialchars($state["id"]); ?>">
+      <form method="POST" action="tag.php">
+      <input type="hidden" name="action" value="delTag">
+      <input type="hidden" name="targetTag" value="<?= htmlspecialchars($tag["id"]); ?>">
       <input type="submit" value="削除"></form>
  <?php } ?>
  </tr>

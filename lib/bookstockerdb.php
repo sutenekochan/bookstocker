@@ -31,8 +31,18 @@ require_once(__DIR__ . '/function.php');
 //   $db->addState($state);                          // エラー時FALSEが帰る
 //   $db->deleteState($id);                          // エラー時FALSEが帰る
 //
+// ・タグ(tagテーブル)を操作
+//   $tagList = $db->getTagList();                   // 二重連想配列が帰る
+//   $db->addTag($tag);                              // エラー時FALSEが帰る
+//   $db->deleteTag($id);                            // エラー時FALSEが帰る
+//
+// ・タグ関連付け(tagrefテーブル)を操作
+//   $tagList = $db->getTagRefList();                // 二重連想配列が帰る
+//   $db->addTagRef($itemid, $tagid);                // エラー時FALSEが帰る
+//   $db->deleteTagRef($itemid, $tagid)              // エラー時FALSEが帰る
+//
 // ・所持品(itemテーブル)を操作
-//   $itemList = $db->searchItem($place, $state, $itemId, $itemCode, $title, $author, $publisher, $memo);
+//   $itemList = $db->searchItem($place, $state, $tag, $itemId, $itemCode, $title, $author, $publisher, $memo);
 //                                                   // アイテム一覧を得る。二重連想配列が帰る
 //                                                   // 各パラメータは配列であることに注意
 //   $db->addItem($datasource, $itemid, $title, $author, $publisher, $place, $state);
@@ -191,6 +201,40 @@ class BookStockerDB
         $preparedSql->bindValue(":state", "既読", PDO::PARAM_STR);
         $preparedSql->execute();
       }
+
+
+      // タグtable
+      $this->dbh->exec(
+        "CREATE TABLE IF NOT EXISTS tag (
+          id  integer primary key autoincrement,
+          tag text not null unique
+        )");
+
+      // DBに何も入ってない場合に、最初の1個を入れる
+      $preparedSql = $this->dbh->query("SELECT count(id) FROM tag");
+      $result = $preparedSql->fetch();
+
+      if($result[0] == 0)
+      {
+        $preparedSql = $this->dbh->prepare("INSERT INTO tag (tag) values (:tag)");
+        $preparedSql->bindValue(":tag", "1巻", PDO::PARAM_STR);
+        $preparedSql->execute();
+
+        $preparedSql = $this->dbh->prepare("INSERT INTO tag (tag) values (:tag)");
+        $preparedSql->bindValue(":tag", "最終巻", PDO::PARAM_STR);
+        $preparedSql->execute();
+      }
+
+
+      // タグ関連付けtable
+      $this->dbh->exec(
+        "CREATE TABLE IF NOT EXISTS tagref (
+          item integer  not null,
+          tag  integer  not null,
+          FOREIGN KEY (item) REFERENCES item(id),
+          FOREIGN KEY (tag) REFERENCES tag(id),
+          PRIMARY KEY (item,tag)
+        )");
 
 
       // 所持品table
@@ -398,8 +442,179 @@ class BookStockerDB
 
 
 
+  // ---------- tagを得る ----------
+  public function getTagList()
+  {
+    if($this->dbh != NULL)
+    {
+      $preparedSql = $this->dbh->query("SELECT * from tag ORDER BY id");
+      $result = $preparedSql->fetchAll();
+      return $result;
+    }
+    else
+    {
+      return [];
+    }
+  }
+
+
+
+  // ---------- tagを追加 ----------
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
+  public function addTag($tag)
+  {
+    $ret = FALSE;
+    $tag = BookStockerDB::makeStringParameter($tag);
+
+    if($this->dbh != NULL && $tag !== NULL)
+    {
+      $preparedSql = $this->dbh->prepare("INSERT INTO tag (tag) values (:tag)");
+      $preparedSql->bindValue(":tag", (String)$tag, PDO::PARAM_STR);
+      $result = $preparedSql->execute();
+      if($result == TRUE)
+      {
+        if($preparedSql->rowCount() == 1)
+        {
+          $ret = TRUE;
+        }
+      }
+      else
+      {
+        $errInfo = $preparedSql->errorInfo();
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
+      }
+    }
+
+    return $ret;
+  }
+
+
+
+  // ---------- tagを削除 ----------
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
+  public function deleteTag($id)
+  {
+    $ret = FALSE;
+
+    if($this->dbh != NULL && is_numeric($id))
+    {
+      $preparedSql = $this->dbh->prepare("DELETE FROM tag WHERE id = :id");
+      $preparedSql->bindValue(":id", (int)$id, PDO::PARAM_INT);
+      $result = $preparedSql->execute();
+      if($result == TRUE)
+      {
+        if($preparedSql->rowCount() == 1)
+        {
+          $ret = TRUE;
+        }
+      }
+      else
+      {
+        $errInfo = $preparedSql->errorInfo();
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
+      }
+    }
+
+    return $ret;
+  }
+
+
+
+  // ---------- itemidに対応したタグ一覧を得る ----------
+  public function getTagRefList($itemid)
+  {
+    if($this->dbh != NULL && is_numeric($itemid))
+    {
+      $preparedSql = $this->dbh->query("SELECT tagref.tag AS tid, tag.tag AS tag FROM tagref INNER JOIN tag ON tagref.tag = tag.id WHERE tagref.item = :item ORDER BY tagref.tag");
+      $preparedSql->bindValue(":item", (int)$itemid, PDO::PARAM_INT);
+      $result = $preparedSql->execute();
+      if($result == TRUE)
+      {
+        $result = $preparedSql->fetchAll();
+        return $result;
+      }
+      else
+      {
+        $errInfo = $preparedSql->errorInfo();
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
+        return [];
+      }
+    }
+    else
+    {
+      return [];
+    }
+  }
+
+
+
+  // ---------- tagを追加 ----------
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
+  public function addTagRef($itemid, $tagid)
+  {
+    $ret = FALSE;
+
+    if($this->dbh != NULL && is_numeric($itemid) && is_numeric($tagid))
+    {
+      $preparedSql = $this->dbh->prepare("INSERT INTO tagref (item, tag) values (:item, :tag)");
+      $preparedSql->bindValue(":item", (int)$itemid, PDO::PARAM_INT);
+      $preparedSql->bindValue(":tag",  (int)$tagid, PDO::PARAM_INT);
+      $result = $preparedSql->execute();
+      if($result == TRUE)
+      {
+        if($preparedSql->rowCount() == 1)
+        {
+          $ret = TRUE;
+        }
+      }
+      else
+      {
+        $errInfo = $preparedSql->errorInfo();
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
+      }
+    }
+
+    return $ret;
+  }
+
+
+
+  // ---------- tagを削除 ----------
+  // エラー時は FALSE が帰る。エラー内容は getErrorMessagesAndClear で得られる
+  public function deleteTagRef($itemid, $tagid)
+  {
+    $ret = FALSE;
+
+    if($this->dbh != NULL && is_numeric($itemid) && is_numeric($tagid))
+    {
+      $preparedSql = $this->dbh->prepare("DELETE FROM tagref WHERE item = :item AND tag = :tag");
+      $preparedSql->bindValue(":item", (int)$itemid, PDO::PARAM_INT);
+      $preparedSql->bindValue(":tag",  (int)$tagid, PDO::PARAM_INT);
+      $result = $preparedSql->execute();
+      if($result == TRUE)
+      {
+        if($preparedSql->rowCount() == 1)
+        {
+          $ret = TRUE;
+        }
+      }
+      else
+      {
+        $errInfo = $preparedSql->errorInfo();
+        array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
+      }
+    }
+
+    return $ret;
+  }
+
+
+
+  
+
+
   // ---------- 詳細検索 ----------
-  public function searchItem($place = [], $state = [], $itemId = NULL, $itemCode = NULL, $title = NULL, $author = NULL, $publisher = NULL, $memo = NULL)
+  public function searchItem($place = [], $state = [], $tag = [], $itemId = NULL, $itemCode = NULL, $title = NULL, $author = NULL, $publisher = NULL, $memo = NULL)
   {
     if($this->dbh != NULL)
     {
@@ -435,6 +650,17 @@ class BookStockerDB
         $searchString .= ")";
         $placeHolderI = array_merge($placeHolderI, $state);
       }
+
+/*
+      if(isset($tag) && is_array($tag) && count($tag) > 0)
+      {
+        $searchString .= " AND tag.id in (";
+        foreach($tag as $a) { $searchString .= "?,"; }
+        $searchString = rtrim($searchString, ",");
+        $searchString .= ")";
+        $placeHolderI = array_merge($placeHolderI, $state);
+      }
+*/
 
       // 次に String 型の  WHERE 句を作成
       if(isset($itemCode) && is_array($itemCode) && count($itemCode) > 0)

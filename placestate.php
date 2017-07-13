@@ -57,6 +57,35 @@ if(isset($arg["action"]))
       array_push($messages, "項目を削除しました");
     }
   }
+
+
+  else if($arg["action"] == "addState" && isset($arg["newState"]))
+  {
+    $ret1 = $db->addState($arg["newState"]);
+    if($ret1 === FALSE)
+    {
+      array_push($messages, "追加に失敗しました");
+      $messages += $db->getErrorMessagesAndClear();
+    }
+    else
+    {
+      array_push($messages, "項目を追加しました");
+    }
+  }
+
+  else if ($arg["action"] == "delState" && isset($arg["targetState"]))
+  {
+    $ret2 = $db->deleteState($arg["targetState"]);
+    if($ret2 === FALSE)
+    {
+      array_push($messages, "削除に失敗しました");
+      $messages += $db->getErrorMessagesAndClear();
+    }
+    else
+    {
+      array_push($messages, "項目を削除しました");
+    }
+  }
 }
 
 
@@ -67,7 +96,11 @@ printMessages($messages);
 // ---------- 項目一覧 ----------
 $placeList = $db->getPlaceList();
 $placeCount = count($placeList);
+$stateList = $db->getStateList();
+$stateCount = count($stateList);
+
 ?>
+<h1 class="categoryTitle">保管場所</h1>
 
 <table border=1>
  <tr>
@@ -94,6 +127,44 @@ $placeCount = count($placeList);
       <form method="POST" action="place.php">
       <input type="hidden" name="act" value="delPlace">
       <input type="hidden" name="targetPlace" value="<?= htmlspecialchars($place["id"]); ?>">
+      <input type="submit" value="削除"></form>
+ <?php } ?>
+ </tr>
+<?php } ?>
+
+</table>
+
+<br>
+<br>
+<hr>
+
+<h1 class="categoryTitle">未読既読状態</h1>
+
+<table border=1>
+ <tr>
+  <th style="width: 3em">ID
+  <th>未読既読状態
+  <th>&nbsp;
+ </tr>
+
+ <tr>
+  <form method="POST" action="state.php">
+  <td>新規
+  <input type="hidden" name="action" value="addState">
+  <td><input type="text" name="newState" size="40" value="" >
+  <td><input type="submit" value="追加">
+  </form>
+ </tr>
+
+<?php foreach ($stateList as $state) { ?>
+ <tr>
+  <td><?= htmlspecialchars($state["id"]); ?>
+  <td><?= htmlspecialchars($state["state"]); ?>
+  <?php if($stateCount >= 2) { ?>
+  <td>
+      <form method="POST" action="state.php">
+      <input type="hidden" name="action" value="delState">
+      <input type="hidden" name="targetState" value="<?= htmlspecialchars($state["id"]); ?>">
       <input type="submit" value="削除"></form>
  <?php } ?>
  </tr>

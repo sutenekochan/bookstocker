@@ -56,6 +56,12 @@ if(isset($arg["state"]) && $arg["state"] !== [0])
   $selectedState = $arg["state"];
 }
 
+$selectedTag = [];
+if(isset($arg["tag"]) && $arg["tag"] !== [0])
+{
+  $selectedTag = $arg["tag"];
+}
+
 $selectedTitle = [];
 if(isset($arg["title"]))
 {
@@ -86,10 +92,10 @@ $stateList = $db->getStateList();
 
 
 $isSearchResultPage = FALSE;  // 検索結果を表示する動作か否か
-if($selectedId !== [] || $selectedItemCode !== [] || $selectedPlace !== [] || $selectedState !== [] ||
+if($selectedId !== [] || $selectedItemCode !== [] || $selectedPlace !== [] || $selectedState !== [] || $selectedTag !== [] ||
    $selectedTitle !== [] || $selectedAuthor !== [] || $selectedPublisher !== [] || $selectedMemo !== [])
 {
-  $itemList = $db->searchItem($selectedPlace, $selectedState, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
+  $itemList = $db->searchItem($selectedPlace, $selectedState, $selectedTag, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
   $itemCount = count($itemList);
   if($itemCount == 0)
   {
@@ -188,7 +194,7 @@ printMessages($messages);
 
 <?php
 // ---------- アイテム一覧 ---------- 
-printItemList($ama, $db, $itemList, 1, ITEMS_PER_PAGE, $placeList, $stateList);
+printItemList($ama, $db, $itemList, 1, ITEMS_PER_PAGE);
 ?>
 
 

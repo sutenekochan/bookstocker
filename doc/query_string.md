@@ -43,6 +43,11 @@
 * 検索等で任意の値を表したいときは0を指定する
 * 文字列ではないことに注意
 
+#### tag：タグ
+* タイプ：数値、またはその組
+* 検索等で任意の値を表したいときは0を指定する
+* 文字列ではないことに注意
+
 #### title：タイトル
 * タイプ：文字列、またはその組。空文字列可
 * 正規表現ではありません
@@ -68,9 +73,9 @@
 
 #### action: 動作
 * タイプ：特定の文字列。大文字小文字区別あり
-* addItem, addPlace, addState：追加
-* modifyItem, modifyPlace, modifyState：情報変更
-* delItem, delPlace, delState：削除
+* addItem, addPlace, addState, addTag, AddTagRef：追加
+* modifyItem, modifyPlace, modifyState, modifyTag：情報変更
+* delItem, delPlace, delState, delTag, delTagRef：削除
 
 
 ***
@@ -92,6 +97,10 @@
 * タイプ：数値
 * 以下の場合に指定：action=modifyState, delState
 
+#### targetTag：変更・削除対象のID
+* タイプ：数値
+* 以下の場合に指定：action=modifyTag, delTag
+
 
 
 #### newItemCode：追加する項目の商品コード
@@ -110,6 +119,11 @@
 * タイプ：文字列
 * 以下の場合に指定：action=addItem, addState, modifyState
 
+
+#### newTag：追加・変更するタグ
+* タイプ：文字列
+* 以下の場合に指定可能：action=addTag, modifyTag
+* 省略可能
 
 
 #### newTitle：追加・変更する項目のタイトル

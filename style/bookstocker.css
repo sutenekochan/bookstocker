@@ -32,7 +32,7 @@ body {
   width: 100%;
   background-color: #fdd;
   border: 1px solid;
-  border-color: black
+  border-color: black;
 }
 
 
@@ -61,6 +61,10 @@ body {
   float: right;
 }
 
+.deleteIconImage {
+  height: 1.2em;
+}
+
 .amazonLinkArea {
   float: right;
   margin-left: 1em;
@@ -72,6 +76,36 @@ body {
 
 .stateArea {
   display: inline;
+}
+
+.tagTextArea {
+  font-size: small;
+  background-color: #aee;
+}
+
+.tagTextLink {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.tagDeleteArea {
+  display: inline;
+}
+
+.tagDeleteImage {
+  height: 1em;
+  vertical-align: middle;
+}
+
+.tagAddForm {
+  display: inline;
+  vertical-align: middle;
+}
+
+.tagAddFormSelect {
+  font-size: small;
+  background-color: #aee;
+  vertical-align: middle;
 }
 
 
@@ -93,3 +127,12 @@ body {
   display: inline;
 }
 
+
+/* 保管場所・未読既読状態のタイトルを表示するエリア */
+.categoryTitle {
+    font-size: x-large;
+    background: #ddd;
+    padding-left: 1em;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+}
