@@ -177,6 +177,20 @@ if(isset($arg["action"]))
 
 
 // ---------- 変更処理(memo) ---------- 
+    if(isset($arg["deleteMemoFlag"]))
+    {
+      $ret = $db->modifyItemMemo($arg["targetItem"], NULL);
+      if($ret === FALSE)
+      {
+        array_push($messages, "メモの削除に失敗しました");
+        $messages += $db->getErrorMessagesAndClear();
+      }
+      else
+      {
+        array_push($messages, "メモを削除しました");
+      }
+    }
+
     if(isset($arg["newMemo"]))
     {
       $ret = $db->modifyItemMemo($arg["targetItem"], $arg["newMemo"]);
@@ -190,6 +204,7 @@ if(isset($arg["action"]))
         array_push($messages, "メモを変更しました");
       }
     }
+
   }
 
 

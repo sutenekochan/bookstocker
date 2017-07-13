@@ -88,29 +88,30 @@ class requestParser
   {
     $this->arg = [];
 
-    $v = $this->parseIntSingle2   ($queryString, $postMessage, "p"           );  if($v !== NULL) {  $this->arg["p"] = $v;             }
-    $v = $this->parseIntArray2    ($queryString, $postMessage, "id"          );  if($v !== NULL) {  $this->arg["id"] = $v;            }
-    $v = $this->parseStringArray2 ($queryString, $postMessage, "itemCode"    );  if($v !== NULL) {  $this->arg["itemCode"] = $v;      }
-    $v = $this->parseIntArray2    ($queryString, $postMessage, "place"       );  if($v !== NULL) {  $this->arg["place"] = $v;         }
-    $v = $this->parseIntArray2    ($queryString, $postMessage, "state"       );  if($v !== NULL) {  $this->arg["state"] = $v;         }
-    $v = $this->parseIntArray2    ($queryString, $postMessage, "tag"         );  if($v !== NULL) {  $this->arg["tag"] = $v;           }
-    $v = $this->parseStringArray2 ($queryString, $postMessage, "title"       );  if($v !== NULL) {  $this->arg["title"] = $v;         }
-    $v = $this->parseStringArray2 ($queryString, $postMessage, "author"      );  if($v !== NULL) {  $this->arg["author"] = $v;        }
-    $v = $this->parseStringArray2 ($queryString, $postMessage, "publisher"   );  if($v !== NULL) {  $this->arg["publisher"] = $v;     }
-    $v = $this->parseStringArray2 ($queryString, $postMessage, "memo"        );  if($v !== NULL) {  $this->arg["memo"] = $v;          }
-    $v = $this->parseStringSingle1(              $postMessage, "action"      );  if($v !== NULL) {  $this->arg["action"] = $v;        }
-    $v = $this->parseStringSingle1(              $postMessage, "targetItem"  );  if($v !== NULL) {  $this->arg["targetItem"] = $v;    }
-    $v = $this->parseIntSingle1   (              $postMessage, "targetPlace" );  if($v !== NULL) {  $this->arg["targetPlace"] = $v;   }
-    $v = $this->parseIntSingle1   (              $postMessage, "targetState" );  if($v !== NULL) {  $this->arg["targetState"] = $v;   }
-    $v = $this->parseIntSingle1   (              $postMessage, "targetTag"   );  if($v !== NULL) {  $this->arg["targetTag"] = $v;     }
-    $v = $this->parseStringSingle1(              $postMessage, "newItemCode" );  if($v !== NULL) {  $this->arg["newItemCode"] = $v;   }
-    $v = $this->parseStringSingle1(              $postMessage, "newPlace"    );  if($v !== NULL) {  $this->arg["newPlace"] = $v;      }
-    $v = $this->parseStringSingle1(              $postMessage, "newState"    );  if($v !== NULL) {  $this->arg["newState"] = $v;      }
-    $v = $this->parseStringSingle1(              $postMessage, "newTag"      );  if($v !== NULL) {  $this->arg["newTag"] = $v;        }
-    $v = $this->parseStringSingle1(              $postMessage, "newTitle"    );  if($v !== NULL) {  $this->arg["newTitle"] = $v;      }
-    $v = $this->parseStringSingle1(              $postMessage, "newAuthor"   );  if($v !== NULL) {  $this->arg["newAuthor"] = $v;     }
-    $v = $this->parseStringSingle1(              $postMessage, "newPublisher");  if($v !== NULL) {  $this->arg["newPublisher"] = $v;  }
-    $v = $this->parseStringSingle1(              $postMessage, "newMemo"     );  if($v !== NULL) {  $this->arg["newMemo"] = $v;       }
+    $v = $this->parseIntSingle2   ($queryString, $postMessage, "p"             );  if($v !== NULL) {  $this->arg["p"] = $v;               }
+    $v = $this->parseIntArray2    ($queryString, $postMessage, "id"            );  if($v !== NULL) {  $this->arg["id"] = $v;              }
+    $v = $this->parseStringArray2 ($queryString, $postMessage, "itemCode"      );  if($v !== NULL) {  $this->arg["itemCode"] = $v;        }
+    $v = $this->parseIntArray2    ($queryString, $postMessage, "place"         );  if($v !== NULL) {  $this->arg["place"] = $v;           }
+    $v = $this->parseIntArray2    ($queryString, $postMessage, "state"         );  if($v !== NULL) {  $this->arg["state"] = $v;           }
+    $v = $this->parseIntArray2    ($queryString, $postMessage, "tag"           );  if($v !== NULL) {  $this->arg["tag"] = $v;             }
+    $v = $this->parseStringArray2 ($queryString, $postMessage, "title"         );  if($v !== NULL) {  $this->arg["title"] = $v;           }
+    $v = $this->parseStringArray2 ($queryString, $postMessage, "author"        );  if($v !== NULL) {  $this->arg["author"] = $v;          }
+    $v = $this->parseStringArray2 ($queryString, $postMessage, "publisher"     );  if($v !== NULL) {  $this->arg["publisher"] = $v;       }
+    $v = $this->parseStringArray2 ($queryString, $postMessage, "memo"          );  if($v !== NULL) {  $this->arg["memo"] = $v;            }
+    $v = $this->parseStringSingle1(              $postMessage, "action"        );  if($v !== NULL) {  $this->arg["action"] = $v;          }
+    $v = $this->parseStringSingle1(              $postMessage, "targetItem"    );  if($v !== NULL) {  $this->arg["targetItem"] = $v;      }
+    $v = $this->parseIntSingle1   (              $postMessage, "targetPlace"   );  if($v !== NULL) {  $this->arg["targetPlace"] = $v;     }
+    $v = $this->parseIntSingle1   (              $postMessage, "targetState"   );  if($v !== NULL) {  $this->arg["targetState"] = $v;     }
+    $v = $this->parseIntSingle1   (              $postMessage, "targetTag"     );  if($v !== NULL) {  $this->arg["targetTag"] = $v;       }
+    $v = $this->parseStringSingle1(              $postMessage, "newItemCode"   );  if($v !== NULL) {  $this->arg["newItemCode"] = $v;     }
+    $v = $this->parseStringSingle1(              $postMessage, "newPlace"      );  if($v !== NULL) {  $this->arg["newPlace"] = $v;        }
+    $v = $this->parseStringSingle1(              $postMessage, "newState"      );  if($v !== NULL) {  $this->arg["newState"] = $v;        }
+    $v = $this->parseStringSingle1(              $postMessage, "newTag"        );  if($v !== NULL) {  $this->arg["newTag"] = $v;          }
+    $v = $this->parseStringSingle1(              $postMessage, "newTitle"      );  if($v !== NULL) {  $this->arg["newTitle"] = $v;        }
+    $v = $this->parseStringSingle1(              $postMessage, "newAuthor"     );  if($v !== NULL) {  $this->arg["newAuthor"] = $v;       }
+    $v = $this->parseStringSingle1(              $postMessage, "newPublisher"  );  if($v !== NULL) {  $this->arg["newPublisher"] = $v;    }
+    $v = $this->parseStringSingle1(              $postMessage, "newMemo"       );  if($v !== NULL) {  $this->arg["newMemo"] = $v;         }
+    $v = $this->parseStringSingle1(              $postMessage, "deleteMemoFlag");  if($v !== NULL) {  $this->arg["deleteMemoFlag"] = $v;  }
   }
 
 

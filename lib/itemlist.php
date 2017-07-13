@@ -153,12 +153,19 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
    </form>
    <br>
 
-   <form method="POST" action="index.php">
+   <form method="POST" action="index.php" class="memoArea">
    <input type="hidden" name="action" value="modifyItem">
    <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
    <input type="text" name="newMemo" size=30 value="<?= htmlspecialchars($memo); ?>" placeholder="一言メモ">
    <input type="submit" value="メモ更新">
    </form>
+   <form method="POST" action="index.php" class="memoArea">
+   <input type="hidden" name="action" value="modifyItem">
+   <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
+   <input type="hidden" name="deleteMemoFlag" value=1>
+   <input type="submit" value="メモ削除">
+   </form>
+   <br>
 
   <?php $tagRefList = $db->getTagRefList((int)($item["id"])); foreach($tagRefList as $tagRef) { ?>
   <span class="tagTextArea">
