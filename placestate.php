@@ -110,7 +110,7 @@ $stateCount = count($stateList);
  </tr>
 
  <tr>
-  <form method="POST" action="place.php">
+  <form method="POST" action="placestate.php">
   <td>新規
   <input type="hidden" name="action" value="addPlace">
   <td><input type="text" name="newPlace" size="40" value="" >
@@ -124,7 +124,7 @@ $stateCount = count($stateList);
   <td><?= htmlspecialchars($place["place"]); ?>
   <?php if($placeCount >= 2) { ?>
   <td>
-      <form method="POST" action="place.php">
+      <form method="POST" action="placestate.php">
       <input type="hidden" name="act" value="delPlace">
       <input type="hidden" name="targetPlace" value="<?= htmlspecialchars($place["id"]); ?>">
       <input type="submit" value="削除"></form>
@@ -148,7 +148,7 @@ $stateCount = count($stateList);
  </tr>
 
  <tr>
-  <form method="POST" action="state.php">
+  <form method="POST" action="placestate.php">
   <td>新規
   <input type="hidden" name="action" value="addState">
   <td><input type="text" name="newState" size="40" value="" >
@@ -162,7 +162,7 @@ $stateCount = count($stateList);
   <td><?= htmlspecialchars($state["state"]); ?>
   <?php if($stateCount >= 2) { ?>
   <td>
-      <form method="POST" action="state.php">
+      <form method="POST" action="placestate.php">
       <input type="hidden" name="action" value="delState">
       <input type="hidden" name="targetState" value="<?= htmlspecialchars($state["id"]); ?>">
       <input type="submit" value="削除"></form>
