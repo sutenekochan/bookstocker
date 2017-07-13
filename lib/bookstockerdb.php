@@ -10,16 +10,7 @@ require_once(__DIR__ . '/function.php');
 //
 // どの関数でも、致命的なエラーがあった時には Exception を起こす。
 //
-// テーブル構造 (詳しくは function initDb あたりを見ること)
-//     place: 保存場所        ： id=serial, place=text
-//     state: 未読既読等の状態： id=serial, state=text
-//     item: 所持品           ： id=serial, itemid=商品コード(ASIN：Amazonの商品コード等)、place=保存場所、state=未読既読等の状態
-//                               title=商品名, author=著者, publisher=出版社
-//                               運用として、itemid または title のどちらかが必須 (DB的な制約はつけていない)
-// いちおう外部制約を付けてはあるが、SQLiteのバージョンによっては外部制約が機能しない。
-// indexは作らない (どうせ作るほどデータ入れないだろう)
-//
-//
+// テーブル構造詳は ../doc/database.md を参照のこと
 //
 // 使用法 (引数等の情報は各APIの説明を参照のこと)
 //
