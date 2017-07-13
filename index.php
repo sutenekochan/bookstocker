@@ -289,7 +289,7 @@ printMessages($messages);
 <td><select name="place" id="filterPlace" onchange="this.form.submit()">
  <option value="0">指定しない</option>
  <?php foreach ($placeList as $place) { ?>
- <option value="<?= htmlspecialchars($place['id']); ?>"<?php if($place['id'] == $selectedPlace[0]) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
+ <option value="<?= htmlspecialchars($place['id']); ?>"<?php if(count($selectedPlace) > 0 && $place['id'] == $selectedPlace[0]) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
  <?php } ?>
 </select>
 
@@ -308,7 +308,7 @@ function reseetFormValue()
 <td><select name="state" id="filterState" onchange="this.form.submit()">
  <option value="0">指定しない</option>
  <?php foreach ($stateList as $state) { ?>
- <option value="<?= htmlspecialchars($state['id']); ?>"<?php if($state['id'] == $selectedState[0]) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
+ <option value="<?= htmlspecialchars($state['id']); ?>"<?php if(count($selectedState) > 0 && $state['id'] == $selectedState[0]) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
  <?php } ?>
 </select>
 
