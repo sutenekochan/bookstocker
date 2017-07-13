@@ -105,7 +105,7 @@ class AmazonApi
   private $entryPointHost   = 'ecs.amazonaws.jp';
   private $entryPointPath   = '/onca/xml';
 
-  private $errorMessages;
+  private $errorMessages = [];
 
 
   // ---------- コンストラクタ。引数必須 ----------

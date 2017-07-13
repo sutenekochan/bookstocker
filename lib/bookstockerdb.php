@@ -62,7 +62,7 @@ class BookStockerDB
   private static $singletonInstance;
 
   private $dbh;
-  private $errorMessages;
+  private $errorMessages = [];
 
 
   // ---------- 定数 ----------
