@@ -6,8 +6,6 @@
   <link rel="stylesheet" type="text/css" href="style/bookstocker.css">
 </head>
 
-<body>
-
 <script><!--
   var itemDisplayState = "none";  // none,newItem,filter,search の何れか
 
@@ -18,7 +16,6 @@
     {
       var targetDiv;
       targetDiv = document.getElementById("newItemDiv");  if(null !== targetDiv) { targetDiv.style.display = "none"; }
-      targetDiv = document.getElementById("filterDiv");   if(null !== targetDiv) { targetDiv.style.display = "none"; }
       targetDiv = document.getElementById("searchDiv");   if(null !== targetDiv) { targetDiv.style.display = "none"; }
       itemDisplayState = "none";
     }
@@ -26,14 +23,34 @@
     {
       var targetDiv;
       targetDiv = document.getElementById("newItemDiv");  if(null !== targetDiv) { targetDiv.style.display = "none"; }
-      targetDiv = document.getElementById("filterDiv");   if(null !== targetDiv) { targetDiv.style.display = "none"; }
       targetDiv = document.getElementById("searchDiv");   if(null !== targetDiv) { targetDiv.style.display = "none"; }
       targetDiv = document.getElementById(areaDivName);   if(null !== targetDiv) { targetDiv.style.display = "block"; }
       itemDisplayState = areaName;
     }
-  }
+  };
+
+  function initItemDisplay()
+  {
+    if("#newItem" == location.hash)
+    {
+      var targetDiv;
+      targetDiv = document.getElementById("newItemDiv");  if(null !== targetDiv) { targetDiv.style.display = "block"; }
+      itemDisplayState = "newItem";
+    }
+
+    if("#search" == location.hash)
+    {
+      var targetDiv;
+      targetDiv = document.getElementById("searchDiv");  if(null !== targetDiv) { targetDiv.style.display = "block"; }
+      itemDisplayState = "search";
+    }
+  };
+
 -->
 </script>
+
+<body onload="initItemDisplay();">
+
 
 <?php
 if(isset($_SERVER['SCRIPT_NAME']) && strlen($_SERVER['SCRIPT_NAME']) > 10 && "/index.php" == substr($_SERVER['SCRIPT_NAME'], -10))
@@ -51,8 +68,6 @@ else
   $searchOnClick = "";
 }
 ?>
-
-
 
 <div class="menu">
  <div class="menuicon"><a class="menulink" href="index.php"><img src="img/bookstocker_cat.png"><br>蔵書一覧</a></div>
