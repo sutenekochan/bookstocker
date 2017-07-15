@@ -116,25 +116,33 @@ if(isset($arg["action"]))
           $itemid = amazonApi::calcIsbn10CheckDigit($itemid);
         } 
 
-        // Amazonから情報を得てキャッシュに保存
-        $newItem = $ama->searchByAsin($itemid);
-
-        if($newItem === NULL)
+        // 補正した結果が10桁で無い場合や不正文字を含む場合、Amazonに行かずにエラーとする
+        if(strlen($itemid) != 10 || containsHtmlSqlSpecialCharactors($itemid))
         {
-          array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . $itemid . "])");
-          $messages += $ama->getErrorMessagesAndClear();
+          array_push($messages, "指定された値はASIN(Amazonの商品コード)として正しくないか、正しく変換できません[" . htmlspecialchars($itemid) . "]");
         }
         else
         {
-          $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $itemid, $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
-          if($ret === FALSE)
+          // Amazonから情報を得てキャッシュに保存
+          $newItem = $ama->searchByAsin($itemid);
+
+          if($newItem === NULL)
           {
-            array_push($messages, "追加に失敗しました (db)");
-            $messages += $db->getErrorMessagesAndClear();
+            array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
+            $messages += $ama->getErrorMessagesAndClear();
           }
           else
           {
-            array_push($messages, "項目を追加しました");
+            $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $itemid, $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
+            if($ret === FALSE)
+            {
+              array_push($messages, "追加に失敗しました (db)");
+              $messages += $db->getErrorMessagesAndClear();
+            }
+            else
+            {
+              array_push($messages, "項目を追加しました");
+            }
           }
         }
       }
