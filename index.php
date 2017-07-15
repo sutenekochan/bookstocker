@@ -94,11 +94,27 @@ if(isset($arg["action"]))
       }
       else
       {
+        // 文字列が ISBN で始まる場合はそれを取り去る
+        if(stristr($itemid, "ISBN") == $itemid) 
+        {
+          $itemid = substr($itemid, 4);
+        }
+
+        // 文字列中のハイフンを取り去る
+        $itemid = str_replace("-", "", $itemid);
+
         // $itemid が13桁で(978|979)で始まる数値の場合、13桁ISBNとみなし、10桁に変換
         if(is_numeric($itemid) && strlen($itemid) == 13 && (strstr($itemid, "978") == $itemid || strstr($itemid, "979") == $itemid))
         {
           $itemid = amazonApi::isbn13toIsbn10($itemid);
         }
+
+        // 10桁ISBNのCheck Digitを再計算。副作用として、Check Digitに文字"x"が含まれていた場合、小文字が大文字に変換される
+        if(strlen($itemid) == 10)
+        {
+          //$itemid = strtoupper($itemid);
+          $itemid = amazonApi::calcIsbn10CheckDigit($itemid);
+        } 
 
         // Amazonから情報を得てキャッシュに保存
         $newItem = $ama->searchByAsin($itemid);
