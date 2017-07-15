@@ -125,18 +125,17 @@ body {
 }
 
 
-/* フィルタを表示するエリア */
-
-.filterFormArea {
-  display: inline;
+/* タグ・保管場所・未読既読状態のタイトルを表示するエリア */
+.categoryTitle {
+  font-size: x-large;
+  font-weight: bold;
+  background: #ddd;
+  padding-left: 1em;
+  padding-top: 0.3em;
+  padding-bottom: 0.1em;
 }
 
-
-/* 保管場所・未読既読状態のタイトルを表示するエリア */
-.categoryTitle {
-    font-size: x-large;
-    background: #ddd;
-    padding-left: 1em;
-    padding-top: 0.3em;
-    padding-bottom: 0.3em;
+.categoryNavi {
+  float: right;
+  margin-right: 1em;
 }

@@ -131,7 +131,11 @@ $tagList = $db->getTagList();
 $tagCount = count($tagList);
 
 ?>
-<h1 class="categoryTitle">タグ</h1>
+<a name="tag"></a>
+<div class="categoryTitle">タグ
+<span class="categoryNavi"> △ <a href="#place">▼</a></span>
+</div>
+
 <table border=1>
  <tr>
   <th style="width: 3em">ID
@@ -168,7 +172,10 @@ $tagCount = count($tagList);
 <br>
 <hr>
 
-<h1 class="categoryTitle">保管場所</h1>
+<a name="place"></a>
+<div class="categoryTitle">保管場所
+<span class="categoryNavi"> <a href="#tag">▲</a> <a href="#state">▼</a></span>
+</div>
 
 <table border=1>
  <tr>
@@ -206,7 +213,11 @@ $tagCount = count($tagList);
 <br>
 <hr>
 
-<h1 class="categoryTitle">未読既読状態</h1>
+<a name="state"></a>
+<div class="categoryTitle">未読既読状態
+<span class="categoryNavi"> <a href="#place">▲</a> ▽</span>
+</div>
+
 
 <table border=1>
  <tr>

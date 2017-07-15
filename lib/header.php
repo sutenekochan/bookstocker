@@ -35,10 +35,29 @@
 -->
 </script>
 
+<?php
+if(isset($_SERVER['SCRIPT_NAME']) && strlen($_SERVER['SCRIPT_NAME']) > 10 && "/index.php" == substr($_SERVER['SCRIPT_NAME'], -10))
+{
+  $newItemLink = "#new";
+  $searchLink  = "#search";
+  $newItemOnClick = "onclick=\"toggleItemDisplay('newItem');\"";
+  $searchOnClick = "onclick=\"toggleItemDisplay('search');\"";
+}
+else
+{
+  $newItemLink = "index.php#newItem";
+  $searchLink  = "index.php#search";
+  $newItemOnClick = "";
+  $searchOnClick = "";
+}
+?>
+
+
+
 <div class="menu">
  <div class="menuicon"><a class="menulink" href="index.php"><img src="img/bookstocker_cat.png"><br>蔵書一覧</a></div>
- <div class="menuicon"><a class="menulink" href="#" onclick="toggleItemDisplay('newItem');"><img src="img/readbook_cat.png"><br>新規登録<a></div>
- <div class="menuicon"><a class="menulink" href="#" onclick="toggleItemDisplay('search');"><img src="img/search_cat.png"><br>検索</a></div>
+ <div class="menuicon"><a class="menulink" href="<?= $newItemLink ?>" <?= $newItemOnClick ?>><img src="img/readbook_cat.png"><br>新規登録<a></div>
+ <div class="menuicon"><a class="menulink" href="<?= $searchLink ?>" <?= $searchOnClick ?>><img src="img/search_cat.png"><br>検索</a></div>
  <div class="menuicon"><a class="menulink" href="setting.php"><img src="img/box_cat.png"><br>設定</a></div>
 </div>
 <br clear="all">
