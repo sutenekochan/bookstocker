@@ -32,6 +32,18 @@ require_once(__DIR__. '/lib/header.php');
 
 
 // ---------- 今後の処理のための変数をセット(1) 各種情報変更前にセットする情報 ---------- 
+$selectedId = [];
+if(isset($arg["id"]))
+{
+  $selectedId = $arg["id"];
+}
+
+$selectedItemCode = [];
+if(isset($arg["itemCode"]))
+{
+  $selectedItemCode = $arg["itemCode"];
+}
+
 $selectedPlace = [];
 if(isset($arg["place"]) && $arg["place"] !== [0])
 {
@@ -49,6 +61,31 @@ if(isset($arg["tag"]) && $arg["tag"] !== [0])
 {
   $selectedTag = $arg["tag"];
 }
+
+$selectedTitle = [];
+if(isset($arg["title"]))
+{
+  $selectedTitle = $arg["title"];
+}
+
+$selectedAuthor = [];
+if(isset($arg["author"]))
+{
+  $selectedAuthor = $arg["author"];
+}
+
+$selectedPublisher = [];
+if(isset($arg["publisher"]))
+{
+  $selectedPublisher = $arg["publisher"];
+}
+
+$selectedMemo = [];
+if(isset($arg["memo"]))
+{
+  $selectedMemo = $arg["memo"];
+}
+
 
 $placeList = $db->getPlaceList();
 $stateList = $db->getStateList();
@@ -265,9 +302,24 @@ if(isset($arg["action"]))
 
 
 // ---------- 今後の処理のための変数をセット(2) 各種情報変更後にセットする情報 ---------- 
-$itemList = $db->searchItem($selectedPlace, $selectedState, $selectedTag);
+$itemList = $db->searchItem($selectedPlace, $selectedState, $selectedTag, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
 
 $itemCount = count($itemList);
+
+if($selectedId !== [] || $selectedItemCode !== [] || $selectedPlace !== [] || $selectedState !== [] || $selectedTag !== [] ||
+   $selectedTitle !== [] || $selectedAuthor !== [] || $selectedPublisher !== [] || $selectedMemo !== [])
+{
+  // 検索結果の場合にはメッセージを表示
+  if($itemCount == 0)
+  {
+    array_push($messages, "検索条件にあう項目が見つかりませんでした");
+  }
+  else
+  {
+    array_push($messages, $itemCount . " 件の項目が見つかりました");
+  }
+}
+
 $pageCount = floor(($itemCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
 if($pageCount == 0) { $pageCount = 1; }
 
@@ -285,132 +337,115 @@ else
 printMessages($messages);
 
 
-// ---------- 新規登録 ---------- -->
+// ---------- 新規登録 ----------
 ?>
 
 <br>
- <form method="POST" action="index.php">
 
- <input type="hidden" name="action" value="addItem">
- 商品コード&nbsp;
- <input type="text" name="newItemCode" size="40" value="" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">&nbsp;
+<div id="newItemDiv" style="display: none">
 
- <input type="submit" value="新規登録">
+<form method="POST" action="index.php">
 
-<br>
-
-<script><!--
-  var newItemDisplayState = "none";
-  function toggleNewItemDisplay()
-  {
-    if(newItemDisplayState == "block")
-    {
-      document.getElementById("newItemDetail").style.display="none";
-      newItemDisplayState = "none";
-    } else {
-      document.getElementById("newItemDetail").style.display="block";
-      newItemDisplayState = "block";
-    }
-  }
-
--->
-</script>
-
-
-<a href="#" onclick="toggleNewItemDisplay();">▲▼</a>
-
-<br>
-<div id="newItemDetail" style="display: none">
+<input type="hidden" name="action" value="addItem">
 
 <table border=0>
 
+<tr><td>商品コード
+    <td><input type="text" name="newItemCode" size="40" value="" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">
+    <td><input type="submit" value="新規登録">
+</tr>
+
+<tr><td colspan=3>&nbsp;
+
 <tr><td>保管場所
-<td><select name="newPlace">
- <?php foreach ($placeList as $place) { ?>
- <option value="<?= htmlspecialchars($place['id']); ?>"><?= htmlspecialchars($place["place"]); ?></option>
- <?php } ?>
-</select>
-<br>
+    <td colspan=2><select name="newPlace">
+      <?php foreach ($placeList as $place) { ?>
+        <option value="<?= htmlspecialchars($place['id']); ?>"><?= htmlspecialchars($place["place"]); ?></option>
+      <?php } ?>
+      </select>
 
 <tr><td>未読既読状態
-<td><select name="newState">
- <?php foreach ($stateList as $state) { ?>
- <option value="<?= htmlspecialchars($state['id']); ?>"><?= htmlspecialchars($state["state"]); ?></option>
- <?php } ?>
-</select>
-<tr><td colspan=2>&nbsp;
-<tr><td colspan=2>Amazonにないアイテムの場合<br>
+    <td colspan=2><select name="newState">
+    <?php foreach ($stateList as $state) { ?>
+      <option value="<?= htmlspecialchars($state['id']); ?>"><?= htmlspecialchars($state["state"]); ?></option>
+    <?php } ?>
+    </select>
 
-<tr><td>タイトル   <td><input type="text" name="newTitle"     size="40" value="">
-<tr><td>著者       <td><input type="text" name="newAuthor"    size="40" value="">
-<tr><td>出版社     <td><input type="text" name="newPublisher" size="40" value="">
+<tr><td colspan=3>&nbsp;
+<tr><td colspan=3>Amazonにないアイテムの場合<br>
+
+<tr><td>タイトル   <td colspan=2><input type="text" name="newTitle"     size="40" value="">
+<tr><td>著者       <td colspan=2><input type="text" name="newAuthor"    size="40" value="">
+<tr><td>出版社     <td colspan=2><input type="text" name="newPublisher" size="40" value="">
 
 </table>
-
-<br>
-
-</div>
 </form>
 
-
+<br>
 <hr>
+</div>
 
 
 <?php
-// ---------- フィルタ ---------- 
+// ---------- 検索 ---------- 
 ?>
 
-<form class="filterFormArea" method="GET" action="index.php">
+<div id="searchDiv" style="display: none">
+
+<form method="GET" action="index.php">
 
 <table border=0>
-<tr>
 
-<td>保管場所
-<td><select name="place" id="filterPlace" onchange="this.form.submit()">
+<tr><td>タイトル   <td><input type="text" name="title"      size="40" value="<?= implode(" ", $selectedTitle) ?>">
+<tr><td>著者       <td><input type="text" name="author"     size="40" value="<?= implode(" ", $selectedAuthor) ?>">
+<tr><td>出版社     <td><input type="text" name="publisher"  size="40" value="<?= implode(" ", $selectedPublisher) ?>">
+<tr><td>メモ       <td><input type="text" name="memo"       size="40" value="<?= implode(" ", $selectedMemo) ?>">
+
+
+<tr><td>DB内ID <td><input type="text" name="id" size="40" value="<?= implode(" ", $selectedId) ?>">
+
+<tr><td>商品コード <td><input type="text" name="itemCode" size="40" value="<?= implode(" ", $selectedItemCode) ?>">
+
+<tr><td>保管場所
+<td><select name="place">
  <option value="0">指定しない</option>
  <?php foreach ($placeList as $place) { ?>
  <option value="<?= htmlspecialchars($place['id']); ?>"<?php if(count($selectedPlace) > 0 && $place['id'] == $selectedPlace[0]) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
  <?php } ?>
 </select>
+<br>
 
-<td>
-<script><!--
-function reseetFormValue()
-{
-  document.getElementById("filterPlace").value = 0;
-  document.getElementById("filterState").value = 0;
-  document.getElementById("filterTag").value = 0;
-}
---></script>
-<input type="button" value="フィルタ条件のリセット" onclick="reseetFormValue(); this.form.submit()">
-
-<tr>
-<td>未読既読状態
-<td><select name="state" id="filterState" onchange="this.form.submit()">
+<tr><td>未読既読状態
+<td><select name="state">
  <option value="0">指定しない</option>
  <?php foreach ($stateList as $state) { ?>
  <option value="<?= htmlspecialchars($state['id']); ?>"<?php if(count($selectedState) > 0 && $state['id'] == $selectedState[0]) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
  <?php } ?>
 </select>
 
-
-<tr>
-<td>タグ
-<td><select name="tag" id="filterTag" onchange="this.form.submit()">
+<tr><td>タグ
+<td><select name="tag">
  <option value="0">指定しない</option>
  <?php foreach ($tagList as $tag) { ?>
  <option value="<?= htmlspecialchars($tag['id']); ?>"<?php if(count($selectedTag) > 0 && $tag['id'] == $selectedTag[0]) { ?> selected<?php } ?>><?= htmlspecialchars($tag["tag"]); ?></option>
  <?php } ?>
 </select>
 
-</table>
 
+<tr><td>&nbsp;     <td><input type="submit" value="この条件で検索する">
+
+</table>
 </form>
 
+<br>
 <hr>
+</div>
 
-<span class="subTitleText"><?php printItemPageLink("index.php", $currentPage, $pageCount, $selectedPlace, $selectedState, $selectedTag); ?></span><br>
 
+<?php
+// ---------- ページナビゲーション ---------- 
+?>
+<span class="subTitleText"><?php printItemPageLink("index.php", $currentPage, $pageCount, $itemCount, $selectedPlace, $selectedState, $selectedTag, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo); ?></span><br>
 <hr>
 
 <?php
@@ -418,7 +453,10 @@ function reseetFormValue()
 printItemList($ama, $db, $itemList, ($currentPage - 1) * ITEMS_PER_PAGE + 1, ITEMS_PER_PAGE);
 ?>
 
-<span class="subTitleText"><?php printItemPageLink("index.php", $currentPage, $pageCount, $selectedPlace, $selectedState, $selectedTag); ?></span><br>
+<?php
+// ---------- ページナビゲーション ---------- 
+?>
+<span class="subTitleText"><?php printItemPageLink("index.php", $currentPage, $pageCount, $itemCount, $selectedPlace, $selectedState, $selectedTag, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo); ?></span><br>
 
 <?php
 // ---------- フッタ ---------- 

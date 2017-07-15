@@ -9,12 +9,13 @@
 //   $startNum = 1;                     // $itemList の何番目の項目から開始し、いくつ表示するか (最初の項目は1と数える)
 //   $numOfItems = 10;
 //
-// printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = 0, $currentFilterState = 0)
+// printItemPageLink($url, $currentPage, $maxPage, $allItemCount = NULL, 
+//     $searchPlace = [], $searchState = [], $searchTag = [], $searchId = [], $searchItemCode = [], $searchTitle = [], $searchAuthor = [], $searchPublisher = [], $searchMemo = []);
 //   $url                  // index.php 等を指定
 //   $currentPage          // 現在のページ
 //   $maxPage              // 最終ページ
-//   $currentFilterPlace   // フィルタ状態 (array型)
-//   $currentFilterState   // 
+//   $allItemCount         // 全〇件の数値
+//   $search....           // 検索条件
 
 
 require_once(dirname(__FILE__) . '/bookstockerdb.php');
@@ -120,7 +121,7 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
    </span>
   <?php } ?>
 
-   <a href="search.php?id=<?= htmlspecialchars($item["id"]); ?>"><?= $title ?></a><br>
+   <a href="index.php?id=<?= htmlspecialchars($item["id"]); ?>"><?= $title ?></a><br>
 
    <?= $author ?><br>
    <span class="detailText"><?= $publisher ?>
@@ -169,7 +170,7 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
 
   <?php $tagRefList = $db->getTagRefList((int)($item["id"])); foreach($tagRefList as $tagRef) { ?>
   <span class="tagTextArea">
-    <a class="tagTextLink" href="search.php?tag=<?= htmlspecialchars($tagRef['tid']); ?>"><?= htmlspecialchars($tagRef['tag']); ?></a>
+    <a class="tagTextLink" href="index.php?tag=<?= htmlspecialchars($tagRef['tid']); ?>"><?= htmlspecialchars($tagRef['tag']); ?></a>
     <form method="POST" action="index.php" class="tagDeleteArea">
      <input type="hidden" name="action" value="delTagRef">
      <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
@@ -206,16 +207,23 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
 
 // ---------- 各ページへのリンクを表示 ----------
 
-function printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = [], $currentFilterState = [], $currentFilterTag = [])
+function printItemPageLink($url, $currentPage, $maxPage, $allItemCount = NULL, 
+  $searchPlace = [], $searchState = [], $searchTag = [], $searchId = [], $searchItemCode = [], $searchTitle = [], $searchAuthor = [], $searchPublisher = [], $searchMemo = [])
 {
-  $filterText = "";
-  if($currentFilterPlace !== []) {  $filterText .= "&place=" . implode(",", $currentFilterPlace);  }
-  if($currentFilterState !== []) {  $filterText .= "&state=" . implode(",", $currentFilterState);  }
-  if($currentFilterTag   !== []) {  $filterText .= "&tag="   . implode(",", $currentFilterTag);    }
-  if($filterText != "") { $filterText = substr($filterText, 1); }
+  $searchText = "";
+  if($searchPlace     !== []) {  $searchText .= "&place="     . implode(",", $searchPlace);      }
+  if($searchState     !== []) {  $searchText .= "&state="     . implode(",", $searchState);      }
+  if($searchTag       !== []) {  $searchText .= "&tag="       . implode(",", $searchTag);        }
+  if($searchId        !== []) {  $searchText .= "&id="        . implode(",", $searchId);         }
+  if($searchItemCode  !== []) {  $searchText .= "&itemCode="  . implode(",", $searchItemCode);   }
+  if($searchTitle     !== []) {  $searchText .= "&title="     . implode(",", $searchTitle);      }
+  if($searchAuthor    !== []) {  $searchText .= "&author="    . implode(",", $searchAuthor);     }
+  if($searchPublisher !== []) {  $searchText .= "&publisher=" . implode(",", $searchPublisher);  }
+  if($searchMemo      !== []) {  $searchText .= "&memo="      . implode(",", $searchMemo);       }
+  if($searchText != "") { $searchText = substr($searchText, 1); }
 
   ?>
-  <a href="<?= $url ?><?php if($filterText != ""){ ?>?<?= $filterText ?><?php } ?>"><span class="pageLink">&lt;&lt;最初</span></a>&nbsp;
+  <a href="<?= $url ?><?php if($searchText != ""){ ?>?<?= $searchText ?><?php } ?>"><span class="pageLink">&lt;&lt;最初</span></a>&nbsp;
   <?php
 
   if($currentPage >= 2)
@@ -224,12 +232,12 @@ function printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = [
     if($previousPage != 1)
     {
       $previousPageText = "?p=" . $previousPage;
-      if($filterText != "") { $previousPageText .= "&" . $filterText; }
+      if($searchText != "") { $previousPageText .= "&" . $searchText; }
     }
     else
     {
       $previousPageText = "";
-      if($filterText != "") { $previousPageText .= "?" . $filterText; }
+      if($searchText != "") { $previousPageText .= "?" . $searchText; }
     }
   ?>
   <a href="<?= $url . $previousPageText ?>"><span class="pageLink">&lt;前</span></a>&nbsp;
@@ -245,23 +253,24 @@ function printItemPageLink($url, $currentPage, $maxPage, $currentFilterPlace = [
   {
     $nextPageText = "?p=" . $nextPage;
     ?>
-  <a href="<?= $url . $nextPageText ?><?php if($filterText != ""){ ?>&<?= $filterText ?><?php } ?>"><span class="pageLink">次&gt;</span></a>&nbsp;
+  <a href="<?= $url . $nextPageText ?><?php if($searchText != ""){ ?>&<?= $searchText ?><?php } ?>"><span class="pageLink">次&gt;</span></a>&nbsp;
     <?php
   }
 
   if($maxPage != 1)
   {
     $maxPageText = "?p=" . $maxPage;
-    if($filterText != "") { $maxPageText .= "&" . $filterText; }
+    if($searchText != "") { $maxPageText .= "&" . $searchText; }
   }
   else
   {
     $maxPageText = "";
-    if($filterText != "") { $maxPageText .= "?" . $filterText; }
+    if($searchText != "") { $maxPageText .= "?" . $searchText; }
   }
   ?>
   <a href="<?= $url . $maxPageText?>"><span class="pageLink">最後&gt;&gt;</span></a>&nbsp;
   / 全<?= $maxPage ?>ページ
+  <?php if($allItemCount !== NULL) { ?>(<?= htmlspecialchars($allItemCount) ?> 件)<?php } ?>
   <?php
 }
 
