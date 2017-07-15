@@ -106,7 +106,8 @@
 #### newItemCode：追加する項目の商品コード
 * タイプ：文字列
 * 以下の場合に指定：action=addItem
-* ItemCodeは、ASIN, ISBN13, ISBN10 のいずれかで指定 (数値以外に英字を含む場合あり)
+* ItemCodeは、ASIN, ISBN13, ISBN10, AmazonのURL のいずれかで指定 (数値以外に英字を含む場合あり)
+* URLが含まれる(＝どの文字が来るかわからない)ため、内部的にはHTMLSpecialCharsのチェックは行われない
 * 省略可能。省略した場合は newTitle の指定が必要になる。
 
 

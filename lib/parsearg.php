@@ -43,12 +43,16 @@
 // $var = parseIntSingle2($arr1, $arr2, $paramName);     // 関数 ～1 は引数が1個の場合、～2 は2個の場合
 // $var = parseStringSingle1($arr1, $paramName);         // String型の場合．","があっても区切り文字として扱われずそのまま文字列として扱われる
 // $var = parseStringSingle2($arr1, $arr2, $paramName);
+// $var = parseRawSingle1($arr1, $paramName);            // 何のチェックも行われない場合。出力には HTMLSpecialChars を含む場合がある。
+// $var = parseRawSingle2($arr1, $arr2, $paramName);
 //
 // $arr = parseIntArray1($arr1, $paramName);             // int型が","で区切られた文字列をparseして配列にする。errorMessage等の処理も行う。エラー時はNULLが帰る
 //                                                       // 空白文字列のみ指定の場合、パラメタが無いのと同等とされる
 // $arr = parseIntArray2($arr1, $arr2, $paramName);
 // $arr = parseStringArray1($arr1, $paramName);          // String型
 // $arr = parseStringArray2($arr1, $arr2, $paramName);
+// $arr = parseRawArray1($arr1, $paramName);             // Raw型
+// $arr = parseRawArray2($arr1, $arr2, $paramName);
 //
 //   引数  ：$str1      : parse対象の文字列(引数がNULLの場合もありうる)
 //           $str2      :
@@ -103,7 +107,7 @@ class requestParser
     $v = $this->parseIntSingle1   (              $postMessage, "targetPlace"   );  if($v !== NULL) {  $this->arg["targetPlace"] = $v;     }
     $v = $this->parseIntSingle1   (              $postMessage, "targetState"   );  if($v !== NULL) {  $this->arg["targetState"] = $v;     }
     $v = $this->parseIntSingle1   (              $postMessage, "targetTag"     );  if($v !== NULL) {  $this->arg["targetTag"] = $v;       }
-    $v = $this->parseStringSingle1(              $postMessage, "newItemCode"   );  if($v !== NULL) {  $this->arg["newItemCode"] = $v;     }
+    $v = $this->parseRawSingle1   (              $postMessage, "newItemCode"   );  if($v !== NULL) {  $this->arg["newItemCode"] = $v;     }
     $v = $this->parseStringSingle1(              $postMessage, "newPlace"      );  if($v !== NULL) {  $this->arg["newPlace"] = $v;        }
     $v = $this->parseStringSingle1(              $postMessage, "newState"      );  if($v !== NULL) {  $this->arg["newState"] = $v;        }
     $v = $this->parseStringSingle1(              $postMessage, "newTag"        );  if($v !== NULL) {  $this->arg["newTag"] = $v;          }
@@ -183,6 +187,35 @@ class requestParser
     $out = NULL;
   
     $tmpArr = $this->parseStringArray1($arr1, $paramName);
+    if($tmpArr !== NULL && $tmpArr !== [])
+    {
+      if(count($tmpArr) == 1) { $out = array_shift($tmpArr);  }
+      else                    {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
+    }
+
+    return $out;
+  }
+
+
+  // ---------- 内部関数：引数のcheck(Raw) ----------
+  private function parseRawSingle2($arr1, $arr2, $paramName)
+  {
+    $out = NULL;
+
+    $tmpArr = $this->parseRawArray2($arr1, $arr2, $paramName);
+    if($tmpArr !== NULL && $tmpArr !== [])
+    {
+      if(count($tmpArr) == 1) { $out = array_shift($tmpArr);  }
+      else                    {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]には1つの値のみ設定できます");  }
+    }
+    return $out;
+  }
+
+  private function parseRawSingle1($arr1, $paramName)
+  {
+    $out = NULL;
+  
+    $tmpArr = $this->parseRawArray1($arr1, $paramName);
     if($tmpArr !== NULL && $tmpArr !== [])
     {
       if(count($tmpArr) == 1) { $out = array_shift($tmpArr);  }
@@ -289,6 +322,46 @@ class requestParser
     {
       return $out;
     }
+  }
+
+
+  // ---------- 内部関数：引数のcheck(Rawの配列) ----------
+   private function parseRawArray2($arr1, $arr2, $paramName)
+  {
+    $out = NULL;
+
+    if(isset($arr1[$paramName]) && isset($arr2[$paramName])) {  array_push($this->errorMessages, "GETとPOSTの両方でパラメータ[" . $paramName . "]が指定されました");  }
+    else if(isset($arr1[$paramName]))                        {  $out = $this->parseRawArray1($arr1, $paramName);  }
+    else if(isset($arr2[$paramName]))                        {  $out = $this->parseRawArray1($arr2, $paramName);  }
+
+    return $out;
+  }
+
+  private function parseRawArray1($arr1, $paramName)
+  {
+    $out = NULL;
+  
+    if(isset($arr1[$paramName]))
+    {
+      $out = $this->parseRawArraySub($arr1[$paramName]);
+      if($out === NULL) {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]の値が正しくありません");  }
+    }
+
+    return $out;
+  }
+
+
+  private function parseRawArraySub($in)
+  {
+    $out = array();
+
+    foreach(preg_split("/[\s,]+/", $in) as $r)
+    {
+      $r = trim($r);
+      if($r != "") { array_push($out, (String)($r));  }
+    }
+
+    return $out;
   }
 
 

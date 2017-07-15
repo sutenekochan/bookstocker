@@ -3,7 +3,7 @@
 // ========== 共通で使われる関数の定義 ==========
 //
 // containsHtmlSqlSpecialCharactors($str);
-//   $strにHTMLやSQL的にまずい文字が含まれている場合FALSE、それ以外だとTRUEが帰る
+//   $strにHTMLやSQL的にまずい文字が含まれている場合TRUE、それ以外だとFALSEが帰る
 
 
 
