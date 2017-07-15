@@ -86,6 +86,35 @@ if(isset($arg["action"]))
       array_push($messages, "項目を削除しました");
     }
   }
+
+
+  else if($arg["action"] == "addTag" && isset($arg["newTag"]))
+  {
+    $ret1 = $db->addTag($arg["newTag"]);
+    if($ret1 === FALSE)
+    {
+      array_push($messages, "追加に失敗しました");
+      $messages += $db->getErrorMessagesAndClear();
+    }
+    else
+    {
+      array_push($messages, "項目を追加しました");
+    }
+  }
+
+  else if ($arg["action"] == "delTag" && isset($arg["targetTag"]))
+  {
+    $ret2 = $db->deleteTag($arg["targetTag"]);
+    if($ret2 === FALSE)
+    {
+      array_push($messages, "削除に失敗しました");
+      $messages += $db->getErrorMessagesAndClear();
+    }
+    else
+    {
+      array_push($messages, "項目を削除しました");
+    }
+  }
 }
 
 
@@ -98,8 +127,47 @@ $placeList = $db->getPlaceList();
 $placeCount = count($placeList);
 $stateList = $db->getStateList();
 $stateCount = count($stateList);
+$tagList = $db->getTagList();
+$tagCount = count($tagList);
 
 ?>
+<h1 class="categoryTitle">タグ</h1>
+<table border=1>
+ <tr>
+  <th style="width: 3em">ID
+  <th>場所
+  <th>&nbsp;
+ </tr>
+
+ <tr>
+  <form method="POST" action="setting.php">
+  <td>新規
+  <input type="hidden" name="action" value="addTag">
+  <td><input type="text" name="newTag" size="40" value="" >
+  <td><input type="submit" value="追加">
+  </form>
+ </tr>
+
+<?php foreach ($tagList as $tag) { ?>
+ <tr>
+  <td><?= htmlspecialchars($tag["id"]); ?>
+  <td><?= htmlspecialchars($tag["tag"]); ?>
+  <?php if($tagCount >= 2) { ?>
+  <td>
+      <form method="POST" action="setting.php">
+      <input type="hidden" name="action" value="delTag">
+      <input type="hidden" name="targetTag" value="<?= htmlspecialchars($tag["id"]); ?>">
+      <input type="submit" value="削除"></form>
+ <?php } ?>
+ </tr>
+<?php } ?>
+
+</table>
+
+<br>
+<br>
+<hr>
+
 <h1 class="categoryTitle">保管場所</h1>
 
 <table border=1>
@@ -110,7 +178,7 @@ $stateCount = count($stateList);
  </tr>
 
  <tr>
-  <form method="POST" action="placestate.php">
+  <form method="POST" action="setting.php">
   <td>新規
   <input type="hidden" name="action" value="addPlace">
   <td><input type="text" name="newPlace" size="40" value="" >
@@ -124,7 +192,7 @@ $stateCount = count($stateList);
   <td><?= htmlspecialchars($place["place"]); ?>
   <?php if($placeCount >= 2) { ?>
   <td>
-      <form method="POST" action="placestate.php">
+      <form method="POST" action="setting.php">
       <input type="hidden" name="act" value="delPlace">
       <input type="hidden" name="targetPlace" value="<?= htmlspecialchars($place["id"]); ?>">
       <input type="submit" value="削除"></form>
@@ -148,7 +216,7 @@ $stateCount = count($stateList);
  </tr>
 
  <tr>
-  <form method="POST" action="placestate.php">
+  <form method="POST" action="setting.php">
   <td>新規
   <input type="hidden" name="action" value="addState">
   <td><input type="text" name="newState" size="40" value="" >
@@ -162,7 +230,7 @@ $stateCount = count($stateList);
   <td><?= htmlspecialchars($state["state"]); ?>
   <?php if($stateCount >= 2) { ?>
   <td>
-      <form method="POST" action="placestate.php">
+      <form method="POST" action="setting.php">
       <input type="hidden" name="action" value="delState">
       <input type="hidden" name="targetState" value="<?= htmlspecialchars($state["id"]); ?>">
       <input type="submit" value="削除"></form>
