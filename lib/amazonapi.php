@@ -148,7 +148,7 @@ class AmazonApi
     if($checkDigit == 10) { $checkDigit = "X";  }
     if($checkDigit == 11) { $checkDigit = "0";  }
 
-    return (int)(substr($isbn10, 0, -1) . $checkDigit);
+    return (int)(substr($isbn10, 0, 9)) . $checkDigit;
   }
 
   public static function calcIsbn13CheckDigit($isbn13)
@@ -163,7 +163,7 @@ class AmazonApi
     $checkDigit = $checkDigit % 10;
     $checkDigit = 10 - $checkDigit;
 
-    return (int)(substr($isbn13, 0, -1) . $checkDigit);
+    return (int)(substr($isbn13, 0, 12)) . $checkDigit;
     
 
   }
