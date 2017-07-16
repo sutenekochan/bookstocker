@@ -37,10 +37,6 @@ body {
 
 
 /* 所持品一覧を表示するエリア */
-.subTitleText {
-  font-weight: bold;
-}
-
 .detailText {
   font-size: smaller;
 }
@@ -114,14 +110,24 @@ body {
 
 
 /* 各ページへのリンクを表示するエリア */
+.navigationArea {
+  text-align: center;
+  background: #ddf;
+  font-weight: bold;
+}
+
 .pageLink {
-  background: #ddd;
+  background: #abe;
   font-size: large;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
 }
 
 .activePageLink {
   background: #fcc;
   font-size: large;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
 }
 
 
@@ -133,9 +139,27 @@ body {
   padding-left: 1em;
   padding-top: 0.3em;
   padding-bottom: 0.1em;
+  margin-bottom: 0.3em;
 }
 
 .categoryNavi {
   float: right;
   margin-right: 1em;
+}
+
+
+/* footer */
+.footer {
+  background-color: #28f;
+  color: white;
+  font-size: x-small;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  padding-left: 1em;
+  padding-right: 1em;
+  text-align: right;
+}
+
+.footer A {
+  color: white;
 }

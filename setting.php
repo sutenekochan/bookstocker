@@ -251,6 +251,9 @@ $tagCount = count($tagList);
 
 </table>
 
+<br>
+<br>
+
 <?php
 require_once(dirname(__FILE__) . '/lib/footer.php');
 ?>

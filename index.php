@@ -340,8 +340,6 @@ printMessages($messages);
 // ---------- 新規登録 ----------
 ?>
 
-<br>
-
 <div id="newItemDiv" style="display: none">
 
 <form method="POST" action="index.php">
@@ -382,7 +380,7 @@ printMessages($messages);
 </form>
 
 <br>
-<hr>
+
 </div>
 
 
@@ -438,14 +436,13 @@ printMessages($messages);
 </form>
 
 <br>
-<hr>
-</div>
 
+</div>
 
 <?php
 // ---------- ページナビゲーション ---------- 
+printItemPageLink("index.php", $currentPage, $pageCount, $itemCount, $selectedPlace, $selectedState, $selectedTag, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
 ?>
-<span class="subTitleText"><?php printItemPageLink("index.php", $currentPage, $pageCount, $itemCount, $selectedPlace, $selectedState, $selectedTag, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo); ?></span><br>
 <hr>
 
 <?php
@@ -455,8 +452,9 @@ printItemList($ama, $db, $itemList, ($currentPage - 1) * ITEMS_PER_PAGE + 1, ITE
 
 <?php
 // ---------- ページナビゲーション ---------- 
+printItemPageLink("index.php", $currentPage, $pageCount, $itemCount, $selectedPlace, $selectedState, $selectedTag, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo);
 ?>
-<span class="subTitleText"><?php printItemPageLink("index.php", $currentPage, $pageCount, $itemCount, $selectedPlace, $selectedState, $selectedTag, $selectedId, $selectedItemCode, $selectedTitle, $selectedAuthor, $selectedPublisher, $selectedMemo); ?></span><br>
+<br>
 
 <?php
 // ---------- フッタ ---------- 

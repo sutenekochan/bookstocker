@@ -98,9 +98,12 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
     {
 ?>
   <!-- ---------- Item ID: <?= htmlspecialchars($item["id"]); ?> ---------- -->
-  <div class="itemImageArea">
-  <img class="detailimage" src="<?= $imageUrl ?>" width="<?= $imageWidth ?>" height="<?= $imageHeight ?>">
-  </div>
+  <div class="itemDetail">
+   <a name="item<?= htmlspecialchars($item["id"]); ?>"></a>
+
+   <div class="itemImageArea">
+    <img class="detailimage" src="<?= $imageUrl ?>" width="<?= $imageWidth ?>" height="<?= $imageHeight ?>">
+   </div>
 
   <div class="itemDetailArea">
    <span class="detailText">商品コード: <?= $itemid ?></span>
@@ -169,7 +172,7 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
    <br>
 
   <?php $tagRefList = $db->getTagRefList((int)($item["id"])); foreach($tagRefList as $tagRef) { ?>
-  <span class="tagTextArea">
+   <span class="tagTextArea">
     <a class="tagTextLink" href="index.php?tag=<?= htmlspecialchars($tagRef['tid']); ?>"><?= htmlspecialchars($tagRef['tag']); ?></a>
     <form method="POST" action="index.php" class="tagDeleteArea">
      <input type="hidden" name="action" value="delTagRef">
@@ -178,25 +181,26 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
      <input type="image" src="img/delete_red.png" alt="削除" class="tagDeleteImage">
      <!-- input type="submit" value="削除" -->
     </form>
-  </span>&nbsp;
+   </span>&nbsp;
   <?php } ?>
 
-  <form method="POST" action="index.php" class="tagAddForm">
+   <form method="POST" action="index.php" class="tagAddForm">
     <input type="hidden" name="action" value="addTagRef">
     <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
     <select name="targetTag" onchange="this.form.submit()" class="tagAddFormSelect">
-      <option value="0" selected="">タグ追加</option>
-      <?php foreach ($tagList as $tag) {  ?>
-      <option value="<?= htmlspecialchars($tag['id']); ?>"><?= htmlspecialchars($tag["tag"]); ?></option>
-      <?php } ?>
+     <option value="0" selected="">タグ追加</option>
+     <?php foreach ($tagList as $tag) {  ?>
+     <option value="<?= htmlspecialchars($tag['id']); ?>"><?= htmlspecialchars($tag["tag"]); ?></option>
+     <?php } ?>
     </select>
     <!-- input type="submit" value="タグの追加" -->
-  </form>
-
+   </form>
 
    </div>
-   <br clear="all">
-   <hr>
+
+  </div>
+  <br clear="all">
+  <hr>
 
   <?php
     }  // if ($imageUrl === NULL)
@@ -222,7 +226,8 @@ function printItemPageLink($url, $currentPage, $maxPage, $allItemCount = NULL,
   if($searchMemo      !== []) {  $searchText .= "&memo="      . implode(",", $searchMemo);       }
   if($searchText != "") { $searchText = substr($searchText, 1); }
 
-  ?>
+?>
+  <div class="navigationArea">
   <a href="<?= $url ?><?php if($searchText != ""){ ?>?<?= $searchText ?><?php } ?>"><span class="pageLink">&lt;&lt;最初</span></a>&nbsp;
   <?php
 
@@ -271,6 +276,7 @@ function printItemPageLink($url, $currentPage, $maxPage, $allItemCount = NULL,
   <a href="<?= $url . $maxPageText?>"><span class="pageLink">最後&gt;&gt;</span></a>&nbsp;
   / 全<?= $maxPage ?>ページ
   <?php if($allItemCount !== NULL) { ?>(<?= htmlspecialchars($allItemCount) ?> 件)<?php } ?>
+  </div>
   <?php
 }
 
