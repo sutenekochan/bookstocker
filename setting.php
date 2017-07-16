@@ -133,7 +133,7 @@ $tagCount = count($tagList);
 ?>
 <a name="tag"></a>
 <div class="categoryTitle">タグ
-<span class="categoryNavi"> △ <a href="#place">▼</a></span>
+<span class="categoryNavi">△<a href="#place">▼</a></span>
 </div>
 
 <table border=1>
@@ -174,7 +174,7 @@ $tagCount = count($tagList);
 
 <a name="place"></a>
 <div class="categoryTitle">保管場所
-<span class="categoryNavi"> <a href="#tag">▲</a> <a href="#state">▼</a></span>
+<span class="categoryNavi"> <a href="#tag">▲</a><a href="#state">▼</a></span>
 </div>
 
 <table border=1>
@@ -215,7 +215,7 @@ $tagCount = count($tagList);
 
 <a name="state"></a>
 <div class="categoryTitle">未読既読状態
-<span class="categoryNavi"> <a href="#place">▲</a> ▽</span>
+<span class="categoryNavi"> <a href="#place">▲</a>▽</span>
 </div>
 
 

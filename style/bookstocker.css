@@ -147,6 +147,9 @@ body {
   margin-right: 1em;
 }
 
+.categoryNavi A {
+  text-decoration: none;
+}
 
 /* footer */
 .footer {
