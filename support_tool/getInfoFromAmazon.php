@@ -2,9 +2,9 @@
 // ========== Amazonから情報を取ってきてキャッシュに保存するコマンドラインプログラム ==========
 // debug用にお使いください。setting.iniが正しければこれで情報を得られるはずです。
 
-require_once(dirname(__FILE__) . '/../setting.ini.php');
-require_once(dirname(__FILE__) . '/../lib/error.php');
-require_once(dirname(__FILE__) . '/../lib/amazonapi.php');
+require_once(__DIR__ . '/../setting.ini.php');
+require_once(__DIR__ . '/../lib/error.php');
+require_once(__DIR__ . '/../lib/amazonapi.php');
 
 
 // ---------- 起動環境チェック ----------
@@ -64,9 +64,15 @@ if($itemid === NULL)
   usageExit("Cannot get item id from amazon URL");
 }
 
+// 文字列が ISBN で始まる場合はそれを取り去る
+if(stristr($itemid, "ISBN") == $itemid) 
+{
+  $itemid = substr($itemid, 4);
+}
 
+// 文字列中のハイフンを取り去る
+$itemid = str_replace("-", "", $itemid);
 
-// ---------- 情報を取ってくる ----------
 // $itemid が13桁で(978|979)で始まる数値の場合、13桁ISBNとみなし、10桁に変換
 if(is_numeric($itemid) && strlen($itemid) == 13 && (strstr($itemid, "978") == $itemid || strstr($itemid, "979") == $itemid))
 {
@@ -74,7 +80,13 @@ if(is_numeric($itemid) && strlen($itemid) == 13 && (strstr($itemid, "978") == $i
   $itemid = amazonApi::isbn13toIsbn10($itemid);
 }
 
+// 10桁ISBNのCheck Digitを再計算。副作用として、Check Digitに文字"x"が含まれていた場合、小文字が大文字に変換される
+if(strlen($itemid) == 10)
+{
+  $itemid = amazonApi::calcIsbn10CheckDigit($itemid);
+} 
 
+// ---------- 情報を取ってくる ----------
 print "Getting information, Mode=" . $mode . " / item code=" . $itemid . "\n";
 
 
