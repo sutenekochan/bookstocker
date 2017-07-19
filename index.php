@@ -86,6 +86,11 @@ if(isset($arg["memo"]))
   $selectedMemo = $arg["memo"];
 }
 
+$addItemDefaultItemCode  = "";
+$addItemDefaultTitle     = "";
+$addItemDefaultAuthor    = "";
+$addItemDefaultPublisher = "";
+
 
 $placeList = $db->getPlaceList();
 $stateList = $db->getStateList();
@@ -106,6 +111,10 @@ if(isset($arg["action"]))
       {
         array_push($messages, "追加に失敗しました (db)");
         $messages += $db->getErrorMessagesAndClear();
+        if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+        if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+        if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+        if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
       }
       else
       {
@@ -128,6 +137,10 @@ if(isset($arg["action"]))
       {
         array_push($messages, "追加に失敗しました");
         array_push($messages, "必要なパラメータがセットされていないか、AmazonのURLからパラメータを推測できません");
+        if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+        if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+        if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+        if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
       }
       else
       {
@@ -157,6 +170,10 @@ if(isset($arg["action"]))
         if(strlen($itemid) != 10 || containsHtmlSqlSpecialCharactors($itemid))
         {
           array_push($messages, "指定された値はASIN(Amazonの商品コード)として正しくないか、正しく変換できません[" . htmlspecialchars($itemid) . "]");
+          if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+          if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+          if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+          if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
         }
         else
         {
@@ -167,6 +184,10 @@ if(isset($arg["action"]))
           {
             array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
             $messages += $ama->getErrorMessagesAndClear();
+            if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+            if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+            if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+            if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
           }
           else
           {
@@ -175,6 +196,10 @@ if(isset($arg["action"]))
             {
               array_push($messages, "追加に失敗しました (db)");
               $messages += $db->getErrorMessagesAndClear();
+              if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+              if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+              if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+              if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
             }
             else
             {
@@ -349,7 +374,7 @@ printMessages($messages);
 <table border=0>
 
 <tr><td>商品コード
-    <td><input type="text" name="newItemCode" size="40" value="" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">
+    <td><input type="text" name="newItemCode" size="40" value="<?= htmlspecialchars($addItemDefaultItemCode); ?>" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">
     <td><input type="submit" value="新規登録">
 </tr>
 
@@ -372,9 +397,9 @@ printMessages($messages);
 <tr><td colspan=3>&nbsp;
 <tr><td colspan=3>Amazonにないアイテムの場合<br>
 
-<tr><td>タイトル   <td colspan=2><input type="text" name="newTitle"     size="40" value="">
-<tr><td>著者       <td colspan=2><input type="text" name="newAuthor"    size="40" value="">
-<tr><td>出版社     <td colspan=2><input type="text" name="newPublisher" size="40" value="">
+<tr><td>タイトル   <td colspan=2><input type="text" name="newTitle"     size="40" value="<?= htmlspecialchars($addItemDefaultTitle); ?>">
+<tr><td>著者       <td colspan=2><input type="text" name="newAuthor"    size="40" value="<?= htmlspecialchars($addItemDefaultAuthor); ?>">
+<tr><td>出版社     <td colspan=2><input type="text" name="newPublisher" size="40" value="<?= htmlspecialchars($addItemDefaultPublisher); ?>">
 
 </table>
 </form>
