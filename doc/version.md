@@ -1,6 +1,9 @@
 # バージョン履歴
 
 ## HEAD
+
+
+## ver.0.4 (2017/07/20)
 * 似た機能をもっていた、蔵書一覧(index.php)と検索(search.php)を統合
 * 保管場所/未読既読状態(placestate.php)とタグ(tag.php)を統合して設定(setting.php)を作成
 * 検索結果の複数ページ対応
