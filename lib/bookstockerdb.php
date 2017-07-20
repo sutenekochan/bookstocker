@@ -53,6 +53,7 @@ require_once(__DIR__ . '/function.php');
 //   $db->modifyItemPlace($itemId, $placeId);
 //   $db->modifyItemState($itemId, $stateId);
 //   $db->modifyItemMemo($itemId, $memo);            // メモを消去したい場合は $memo を NULL にする
+//   $num = $db->getLastItemId();                    // IDの最大値(＝最後に追加されたID)を返す
 //
 // ・サポート関数
 //   BookStockerDB::makeStringParameter($str);       // $strにHTMLやSQL的にまずい文字が含まれている場合NULL、それ以外だと$strが帰る
@@ -952,7 +953,32 @@ class BookStockerDB
     return $ret;
   }
 
+  public function getLastItemId()
+  {
+    $num = NULL;
 
+    if($this->dbh != NULL)
+    {
+      $preparedSql = $this->dbh->query("SELECT id FROM item ORDER BY id DESC LIMIT 1");
+      $result = $preparedSql->execute();
+      if($result == TRUE)
+      {
+        $result = $preparedSql->fetchAll();
+
+        if(count($result) == 0)
+        {
+          // itemテーブルに項目なし
+          $num = 0;
+        }
+        else
+        {
+          $num = $result[0]['id'];
+        }
+      }
+    }
+
+    return $num;
+  }
 
 }
 

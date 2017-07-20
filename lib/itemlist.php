@@ -25,6 +25,10 @@ require_once(dirname(__FILE__) . '/amazonapi.php');
 
 function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
 {
+  $placeList = $db->getPlaceList();
+  $stateList = $db->getStateList();
+  $tagList   = $db->getTagList();
+
   $itemCount = count($itemList);
   $startCount = $startNum - 1;
   if($startCount < 0) { $startCount = 0; }
@@ -37,10 +41,13 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
 
     $itemInfo = $ama->searchCacheByAsin($item["itemid"]);
 
+    $imageFound = FALSE;
+
     if ($item["datasource"] == BookStockerDB::DataSource_UserDefined)
     {
       // ユーザ定義のデータがある場合
-      $imageUrl        = "img/NoImage.png";
+      $imageFound      = TRUE;
+      $imageUrl        = "";
       $imageWidth      = 115;
       $imageHeight     = 160;
       $itemid          = "";  if(isset($item["itemid"]))    { $itemid = $item["itemid"]; }
@@ -54,9 +61,10 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
       $lowestPrice     = "";
       $memo            = "";  if(isset($item["memo"]))      { $memo = $item["memo"]; }
     }
-    else if($itemInfo !== NULL)
+    else if($item["datasource"] == BookStockerDB::DataSource_Amazon && $itemInfo !== NULL)
     {
       // Amazonのデータがある場合
+      $imageFound      = TRUE;
       $imageUrl        = $itemInfo->getMediumImageUrl();
       $imageWidth      = $itemInfo->getMediumImageWidth();
       $imageHeight     = $itemInfo->getMediumImageHeight();
@@ -80,21 +88,54 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
       if (isset($item['title']))  { $message .= "Title=" . $item['title']; }
     }
 
-  $placeList = $db->getPlaceList();
-  $stateList = $db->getStateList();
-  $tagList   = $db->getTagList();
+    // 画像ファイルのURL作成
+    if(file_exists(BOOK_IMAGE_DIR . "/user_" . $item["id"] . ".jpg"))
+    {
+      // User upload image
+      $imageUrl = BOOK_IMAGE_URL . "user_" . $item["id"] . ".jpg";
+      $imageWidth = "120";  // ユーザ画像はサイズがまちまちなので、横幅のみ指定する
+      $imageHeight = "";
+    }
+    else if(file_exists(BOOK_IMAGE_DIR . "/user_" . $item["id"] . ".png"))
+    {
+      // User upload image
+      $imageUrl = BOOK_IMAGE_URL . "user_" . $item["id"] . ".png";
+      $imageWidth = "120";  // ユーザ画像はサイズがまちまちなので、横幅のみ指定する
+      $imageHeight = "";
+    }
+    else if(file_exists(BOOK_IMAGE_DIR . "/asin_" . $itemid . ".jpg"))
+    {
+      // Cache of Amazon image
+      $imageUrl = BOOK_IMAGE_URL . "asin_" . $itemid . ".jpg";
+      $imageWidth = "";;
+      $imageHeight = "";
+    }
+    else if(file_exists(BOOK_IMAGE_DIR . "/asin_" . $itemid . ".png"))
+    {
+      // Cache of Amazon image
+      $imageUrl = BOOK_IMAGE_URL . "asin_" . $itemid . ".png";
+      $imageWidth = "";;
+      $imageHeight = "";
+    }
+    else if($imageUrl ===  "")
+    {
+      // No Image
+      $imageUrl = "img/NoImage.png";
+      $imageWidth = 115;
+      $imageHeight = "";
+    }
 
 
 ?>
 
 <?php
-    if ($imageUrl === NULL) {
+    if ($imageFound === FALSE) {
 ?>
   <!-- ---------- Item ID: <?= htmlspecialchars($item["id"]); ?> ---------- -->
   アイテムが見つかりません：<?= htmlspecialchars($message); ?>">
 <?php
     }
-    else  // if ($imageUrl === NULL)
+    else  // if ($imageFound === FALSE)
     {
 ?>
   <!-- ---------- Item ID: <?= htmlspecialchars($item["id"]); ?> ---------- -->
@@ -102,7 +143,7 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
    <a name="item<?= htmlspecialchars($item["id"]); ?>"></a>
 
    <div class="itemImageArea">
-    <img class="detailimage" src="<?= $imageUrl ?>" width="<?= $imageWidth ?>" height="<?= $imageHeight ?>">
+    <img class="detailimage" src="<?= $imageUrl ?>" <?php if($imageWidth !== "") { ?>width="<?= $imageWidth ?>"<?php } ?> <?php if($imageHeight !== "") { ?>height="<?= $imageHeight ?>"<?php } ?>>
    </div>
 
   <div class="itemDetailArea">

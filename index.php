@@ -102,6 +102,7 @@ if(isset($arg["action"]))
 {
   if($arg["action"] == "addItem" && isset($arg["newPlace"]) && isset($arg["newState"]))
   {
+    $addItemSuccess = FALSE;
 
     // titleでの追加 (itemidよりこちらが優先)  AmazonのURLがあっても無視される
     if(isset($arg["newTitle"]) && $arg["newTitle"] != "")
@@ -119,6 +120,7 @@ if(isset($arg["action"]))
       else
       {
         array_push($messages, "項目を追加しました");
+        $addItemSuccess = TRUE;
       }
     }
 
@@ -203,13 +205,61 @@ if(isset($arg["action"]))
             }
             else
             {
+              // 画像キャッシュを保存
+              $newItemAsin = $newItem->getAsin();
+              $newItemImageUrl = $newItem->getMediumImageUrl();
+              $newItemImageExt = substr($newItemImageUrl, strrpos($newItemImageUrl, "."));
+              if(!(file_exists(BOOK_IMAGE_DIR . "/asin_" . $newItemAsin . $newItemImageExt)) && $newItemImageUrl !==  "")
+              {
+                $newItemFileName = BOOK_IMAGE_URL . "asin_" . $newItemAsin . $newItemImageExt;
+                $newItemContents = file_get_contents($newItemImageUrl);
+                $newItemFileHandle = fopen($newItemFileName, "wb");
+                fwrite($newItemFileHandle, $newItemContents);
+                fclose($newItemFileHandle);
+              }
+
               array_push($messages, "項目を追加しました");
+              $addItemSuccess = TRUE;
             }
           }
         }
       }
+    } // if(isset($arg["newTitle"]) && $arg["newTitle"] != "")
+
+    // 表紙画像アップロードの処理
+    if($addItemSuccess && $_FILES['newBookImage']['error'] == UPLOAD_ERR_OK && $_FILES['newBookImage']['size'] > 0)
+    {
+      $newImageExt = "";
+      if($_FILES['newBookImage']['type'] == "image/jpeg" || $_FILES['newBookImage']['type'] == "image/jpg") { $newImageExt = "jpg"; }
+      else if($_FILES['newBookImage']['type'] == "image/png") { $newImageExt = "png"; }
+
+      $newItemId = $db->getLastItemId();
+
+      if($newImageExt == "")
+      {
+        array_push($messages, "表紙画像のアップロードに失敗しました。ファイルタイプが判別できません");
+      }
+      else if($newItemId === FALSE || $newItemId <= 0)
+      {
+        // 追加したはずのItemIDが見つからない。バグ？
+        array_push($message, "表紙画像のアップロードに失敗しました");
+      }
+      else
+      {
+        $newImageFileName = BOOK_IMAGE_DIR . "/user_" . $newItemId . "." . $newImageExt;
+        if(move_uploaded_file($_FILES['newBookImage']['tmp_name'], $newImageFileName))
+        {
+          //すでに「項目を追加しました」メッセージが出ているため、ここでは何も出力しない
+          //array_push($messages, "表紙画像をアップロードしました");
+        }
+        else
+        {
+          array_push($messages, "表紙画像のアップロードに失敗しました");
+        }
+
+      }
     }
-  }
+  } // if($arg["action"] == "addItem" && isset($arg["newPlace"]) && isset($arg["newState"]))
 
 
 // ---------- 削除処理 ---------- 
@@ -224,6 +274,16 @@ if(isset($arg["action"]))
     else
     {
       array_push($messages, "項目を削除しました");
+
+      // アップロード画像がある場合は削除
+      if(file_exists(BOOK_IMAGE_DIR . "/user_" . $arg["targetItem"] . ".jpg"))
+      {
+        unlink(BOOK_IMAGE_DIR . "/user_" . $arg["targetItem"] . ".jpg");
+      }
+      else if(file_exists(BOOK_IMAGE_DIR . "/user_" . $arg["targetItem"] . ".png"))
+      {
+        unlink(BOOK_IMAGE_DIR . "/user_" . $arg["targetItem"] . ".png");
+     }
     }
   }
 
@@ -367,7 +427,8 @@ printMessages($messages);
 
 <div id="newItemDiv" style="display: none">
 
-<form method="POST" action="index.php">
+<form method="POST" action="index.php" enctype="multipart/form-data">
+<input type="hidden" name="MAX_FILE_SIZE" value="1048576">
 
 <input type="hidden" name="action" value="addItem">
 
@@ -375,31 +436,35 @@ printMessages($messages);
 
 <tr><td>商品コード
     <td><input type="text" name="newItemCode" size="40" value="<?= htmlspecialchars($addItemDefaultItemCode); ?>" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">
-    <td><input type="submit" value="新規登録">
 </tr>
 
-<tr><td colspan=3>&nbsp;
+<tr><td colspan=2>&nbsp;
 
 <tr><td>保管場所
-    <td colspan=2><select name="newPlace">
+    <td><select name="newPlace">
       <?php foreach ($placeList as $place) { ?>
         <option value="<?= htmlspecialchars($place['id']); ?>"><?= htmlspecialchars($place["place"]); ?></option>
       <?php } ?>
       </select>
 
 <tr><td>未読既読状態
-    <td colspan=2><select name="newState">
+    <td><select name="newState">
     <?php foreach ($stateList as $state) { ?>
       <option value="<?= htmlspecialchars($state['id']); ?>"><?= htmlspecialchars($state["state"]); ?></option>
     <?php } ?>
     </select>
 
-<tr><td colspan=3>&nbsp;
-<tr><td colspan=3>Amazonにないアイテムの場合<br>
+<tr><td colspan=2>&nbsp;
+<tr><td colspan=2>Amazonにないアイテムの場合<br>
 
-<tr><td>タイトル   <td colspan=2><input type="text" name="newTitle"     size="40" value="<?= htmlspecialchars($addItemDefaultTitle); ?>">
-<tr><td>著者       <td colspan=2><input type="text" name="newAuthor"    size="40" value="<?= htmlspecialchars($addItemDefaultAuthor); ?>">
-<tr><td>出版社     <td colspan=2><input type="text" name="newPublisher" size="40" value="<?= htmlspecialchars($addItemDefaultPublisher); ?>">
+<tr><td>表紙画像   <td><input type="file" name="newBookImage" size="40">
+<tr><td>タイトル   <td><input type="text" name="newTitle"     size="40" value="<?= htmlspecialchars($addItemDefaultTitle); ?>">
+<tr><td>著者       <td><input type="text" name="newAuthor"    size="40" value="<?= htmlspecialchars($addItemDefaultAuthor); ?>">
+<tr><td>出版社     <td><input type="text" name="newPublisher" size="40" value="<?= htmlspecialchars($addItemDefaultPublisher); ?>">
+
+<tr><td colspan=2>&nbsp;
+
+<tr><td>&nbsp;<td><input type="submit" value="アイテムを登録する">
 
 </table>
 </form>

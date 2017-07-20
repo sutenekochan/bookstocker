@@ -6,7 +6,11 @@ define('DEBUG', FALSE);
 
 // ---------- ディレクトリに関する設定 ----------
 // Amazon から取ってきた情報のキャッシュを保存するディレクトリ (public_html外でも良い)
-define ('CACHE_DIR', dirname(__FILE__) . '/cache/');
+define ('CACHE_DIR', __DIR__  . '/cache/');
+
+// 表紙画像を保存するディレクトリ (public_html内である必要がある)
+define ('BOOK_IMAGE_URL', 'bookimage/');
+define ('BOOK_IMAGE_DIR', __DIR__  . '/' . BOOK_IMAGE_URL);
 
 
 // ---------- データ保存に関する設定 ----------
