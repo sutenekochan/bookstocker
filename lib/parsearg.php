@@ -93,6 +93,7 @@ class requestParser
     $this->arg = [];
 
     $v = $this->parseIntSingle2   ($queryString, $postMessage, "p"                    );  if($v !== NULL) {  $this->arg["p"] = $v;               }
+    $v = $this->parseStringSingle2($queryString, $postMessage, "view"                 );  if($v !== NULL) {  $this->arg["view"] = $v;            }
     $v = $this->parseIntArray2    ($queryString, $postMessage, "id"                   );  if($v !== NULL) {  $this->arg["id"] = $v;              }
     $v = $this->parseStringArray2 ($queryString, $postMessage, "itemCode"             );  if($v !== NULL) {  $this->arg["itemCode"] = $v;        }
     $v = $this->parseIntArray2    ($queryString, $postMessage, "place"                );  if($v !== NULL) {  $this->arg["place"] = $v;           }

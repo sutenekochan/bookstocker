@@ -405,16 +405,32 @@ if($selectedId !== [] || $selectedItemCode !== [] || $selectedPlace !== [] || $s
   }
 }
 
-$pageCount = floor(($itemCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
-if($pageCount == 0) { $pageCount = 1; }
-
-if(isset($arg["p"]) && is_numeric($arg["p"]))
+if(isset($arg["view"]) && $arg["view"] == "image")
 {
-  $currentPage = $arg["p"];
+  $imageOnlyView = TRUE;
+  $pageCount = 1;
+  $currentPage = 1;  
+  $startNum = 1;
+  $numOfItems = $itemCount;
 }
 else
 {
-  $currentPage = 1;
+  $imageOnlyView = FALSE;
+
+  $pageCount = floor(($itemCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
+  if($pageCount == 0) { $pageCount = 1; }
+
+  if(isset($arg["p"]) && is_numeric($arg["p"]))
+  {
+    $currentPage = $arg["p"];
+  }
+  else
+  {
+    $currentPage = 1;
+  }
+
+  $startNum = ($currentPage - 1) * ITEMS_PER_PAGE + 1;
+  $numOfItems = ITEMS_PER_PAGE;
 }
 
 
@@ -519,6 +535,13 @@ printMessages($messages);
  <?php } ?>
 </select>
 
+<tr><td colspan=2>&nbsp;
+
+<tr><td>表示形式
+<td><select name="view">
+  <option value="detail" selected>詳細表示</option>
+  <option value="image">表紙のみを一覧表示</option>
+</select>
 
 <tr><td>&nbsp;     <td><input type="submit" value="この条件で検索する">
 
@@ -537,7 +560,7 @@ printItemPageLink("index.php", $currentPage, $pageCount, $itemCount, $selectedPl
 
 <?php
 // ---------- アイテム一覧 ---------- 
-printItemList($ama, $db, $itemList, ($currentPage - 1) * ITEMS_PER_PAGE + 1, ITEMS_PER_PAGE);
+printItemList($ama, $db, $itemList, $startNum, $numOfItems, $imageOnlyView);
 ?>
 
 <?php

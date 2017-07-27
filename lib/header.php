@@ -70,8 +70,9 @@ else
 ?>
 
 <div class="menu">
- <div class="menuicon"><a class="menulink" href="index.php"><img src="img/bookstocker_cat.png"><br>蔵書一覧</a></div>
- <div class="menuicon"><a class="menulink" href="<?= $newItemLink ?>" <?= $newItemOnClick ?>><img src="img/readbook_cat.png"><br>新規登録<a></div>
+ <div class="menuicon"><a class="menulink" href="index.php?view=image"><img src="img/bookstocker_cat.png"><br>一覧</a></div>
+ <div class="menuicon"><a class="menulink" href="index.php"><img src="img/readbook_cat.png"><br>詳細一覧</a></div>
+ <div class="menuicon"><a class="menulink" href="<?= $newItemLink ?>" <?= $newItemOnClick ?>><img src="img/newbook_cat.png"><br>新規登録<a></div>
  <div class="menuicon"><a class="menulink" href="<?= $searchLink ?>" <?= $searchOnClick ?>><img src="img/search_cat.png"><br>検索</a></div>
  <div class="menuicon"><a class="menulink" href="setting.php"><img src="img/box_cat.png"><br>設定</a></div>
 </div>

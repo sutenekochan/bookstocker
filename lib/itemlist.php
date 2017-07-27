@@ -2,12 +2,13 @@
 
 // ========== アイテム一覧を表示する ==========
 //
-// printItemList($ama, $db, $itemList, $startNum, $numOfItems, $placeList = NULL, $stateList = NULL);
+// printItemList($ama, $db, $itemList, $startNum, $numOfItems, $imageOnlyView = FALSE);
 //   $ama                               // amazonApiクラス
 //   $db                                // BookStockDBクラス
 //   $itemList = $db->getItemList();    // アイテムリスト、アイテムの二重連想配列が入る
 //   $startNum = 1;                     // $itemList の何番目の項目から開始し、いくつ表示するか (最初の項目は1と数える)
 //   $numOfItems = 10;
+//   $imageOnlyView = FALSE;            // TRUEの場合は表紙画像のみを棚に表示する
 //
 // printItemPageLink($url, $currentPage, $maxPage, $allItemCount = NULL, 
 //     $searchPlace = [], $searchState = [], $searchTag = [], $searchId = [], $searchItemCode = [], $searchTitle = [], $searchAuthor = [], $searchPublisher = [], $searchMemo = []);
@@ -23,7 +24,7 @@ require_once(dirname(__FILE__) . '/amazonapi.php');
 
 
 
-function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
+function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $imageOnlyView = FALSE)
 {
   $placeList = $db->getPlaceList();
   $stateList = $db->getStateList();
@@ -143,8 +144,13 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
    <a name="item<?= htmlspecialchars($item["id"]); ?>"></a>
 
    <div class="itemImageArea">
-    <img class="detailimage" src="<?= $imageUrl ?>" <?php if($imageWidth !== "") { ?>width="<?= $imageWidth ?>"<?php } ?> <?php if($imageHeight !== "") { ?>height="<?= $imageHeight ?>"<?php } ?>>
+    <a href="index.php?id=<?= htmlspecialchars($item["id"]); ?>"><img class="detailimage" src="<?= $imageUrl ?>" <?php if($imageWidth !== "") { ?>width="<?= $imageWidth ?>"<?php } ?> <?php if($imageHeight !== "") { ?>height="<?= $imageHeight ?>"<?php } ?>></a>
    </div>
+
+<?php
+  if($imageOnlyView === FALSE)
+  {
+?>
 
   <div class="itemDetailArea">
    <span class="detailText">商品コード: <?= $itemid ?></span>
@@ -239,9 +245,20 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems)
 
    </div>
 
+<?php
+  }  // $imageOnlyView === FALSE
+?>
+
   </div>
-  <br clear="all">
+
+<?php
+  if($imageOnlyView === FALSE || ($count - $startCount) % 5 == 4 || $count == $stopCount - 1)
+  {
+?>  <br clear="all">
   <hr>
+<?php
+  }  // $imageOnlyView === FALSE
+?>
 
   <?php
     }  // if ($imageUrl === NULL)
@@ -269,7 +286,9 @@ function printItemPageLink($url, $currentPage, $maxPage, $allItemCount = NULL,
 
 ?>
   <div class="navigationArea">
-  <a href="<?= $url ?><?php if($searchText != ""){ ?>?<?= $searchText ?><?php } ?>"><span class="pageLink">&lt;&lt;最初</span></a>&nbsp;
+
+  <?php if($maxPage >= 2) { ?><a href="<?= $url ?><?php if($searchText != ""){ ?>?<?= $searchText ?><?php } ?>"><?php } ?><span class="pageLink">&lt;&lt;最初</span><?php if($maxPage >= 2) { ?></a><?php } ?>&nbsp;
+
   <?php
 
   if($currentPage >= 2)
@@ -314,7 +333,7 @@ function printItemPageLink($url, $currentPage, $maxPage, $allItemCount = NULL,
     if($searchText != "") { $maxPageText .= "?" . $searchText; }
   }
   ?>
-  <a href="<?= $url . $maxPageText?>"><span class="pageLink">最後&gt;&gt;</span></a>&nbsp;
+  <?php if($maxPage >= 2) { ?><a href="<?= $url . $maxPageText?>"><?php } ?><span class="pageLink">最後&gt;&gt;</span><?php if($maxPage >= 2) { ?></a><?php } ?>&nbsp;
   / 全<?= $maxPage ?>ページ
   <?php if($allItemCount !== NULL) { ?>(<?= htmlspecialchars($allItemCount) ?> 件)<?php } ?>
   </div>

@@ -1,6 +1,6 @@
 /* 全体 */
 body {
-  width: 650px;
+  width: 800px;
 }
 
 /* ヘッダのメニュー部分 */
@@ -50,7 +50,7 @@ body {
 
 .itemDetailArea {
   float: left;
-  width: 490px;
+  width: 640px;
 }
 
 .deleteIconArea {
