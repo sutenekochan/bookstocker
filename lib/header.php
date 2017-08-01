@@ -27,6 +27,12 @@
       targetDiv = document.getElementById(areaDivName);   if(null !== targetDiv) { targetDiv.style.display = "block"; }
       itemDisplayState = areaName;
     }
+
+    if(itemDisplayState == "newItem")
+    {
+      document.getElementById("newItemCode").focus();
+    }
+
   };
 
   function initItemDisplay()

@@ -451,7 +451,7 @@ printMessages($messages);
 <table border=0>
 
 <tr><td>商品コード
-    <td><input type="text" name="newItemCode" size="40" value="<?= htmlspecialchars($addItemDefaultItemCode); ?>" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">
+    <td><input type="text" id="newItemCode" name="newItemCode" size="40" value="<?= htmlspecialchars($addItemDefaultItemCode); ?>" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">
 </tr>
 
 <tr><td colspan=2>&nbsp;
