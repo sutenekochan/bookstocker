@@ -838,19 +838,32 @@ class BookStockerDB
 
     if($this->dbh != NULL && is_numeric($id))
     {
-      $preparedSql = $this->dbh->prepare("DELETE FROM item WHERE id = :id");
-      $preparedSql->bindValue(":id", (int)$id, PDO::PARAM_INT);
-      $result = $preparedSql->execute();
+      // まずはtagrefを削除
+      $preparedSql1 = $this->dbh->prepare("DELETE FROM tagref WHERE item = :item");
+      $preparedSql1->bindValue(":item", (int)$id, PDO::PARAM_INT);
+      $result = $preparedSql1->execute();
       if($result == TRUE)
       {
-        if($preparedSql->rowCount() == 1)
+        // itemを削除
+        $preparedSql2 = $this->dbh->prepare("DELETE FROM item WHERE id = :id");
+        $preparedSql2->bindValue(":id", (int)$id, PDO::PARAM_INT);
+        $result = $preparedSql2->execute();
+        if($result == TRUE)
         {
-          $ret = TRUE;
+          if($preparedSql2->rowCount() == 1)
+          {
+            $ret = TRUE;
+          }
+        }
+        else
+        {
+          $errInfo = $preparedSql2->errorInfo();
+          array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
         }
       }
       else
       {
-        $errInfo = $preparedSql->errorInfo();
+        $errInfo = $preparedSql1->errorInfo();
         array_push($this->errorMessages, $errInfo[0] . ": " . $errInfo[1] . ": " . $errInfo[2]);
       }
     }

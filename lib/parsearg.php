@@ -347,7 +347,7 @@ class requestParser
   
     if(isset($arr1[$paramName]))
     {
-      $out = $this->parseRawArraySub($arr1[$paramName], $spaceIsDelimite);
+      $out = $this->parseRawArraySub($arr1[$paramName], $spaceIsDelimiter);
       if($out === NULL) {  array_push($this->errorMessages, "パラメータ[" . $paramName . "]の値が正しくありません");  }
     }
 
@@ -355,7 +355,7 @@ class requestParser
   }
 
 
-  private function parseRawArraySub($in)
+  private function parseRawArraySub($in, $spaceIsDelimiter = TRUE)
   {
     $out = array();
 
