@@ -180,11 +180,15 @@ if(isset($arg["action"]))
             if($ret === FALSE)
             {
               array_push($messages, "追加に失敗しました (db)");
+              array_push($messages, "同一アイテムが既に存在する場合は表示します");
               $messages += $db->getErrorMessagesAndClear();
               if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
               if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
               if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
               if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
+
+              // 同一アイテムが既に存在するかもしれないため、ASINを検索条件にセットしておく
+              $selectedItemCode = [$itemid];
             }
             else
             {
