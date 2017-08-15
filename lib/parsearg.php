@@ -111,7 +111,7 @@ class requestParser
     $v = $this->parseRawSingle1   (              $postMessage, "newItemCode"          );  if($v !== NULL) {  $this->arg["newItemCode"] = $v;     }
     $v = $this->parseStringSingle1(              $postMessage, "newPlace"             );  if($v !== NULL) {  $this->arg["newPlace"] = $v;        }
     $v = $this->parseStringSingle1(              $postMessage, "newState"             );  if($v !== NULL) {  $this->arg["newState"] = $v;        }
-    $v = $this->parseStringSingle1(              $postMessage, "newTag"               );  if($v !== NULL) {  $this->arg["newTag"] = $v;          }
+    $v = $this->parseStringSingle1(              $postMessage, "newTag"        , FALSE);  if($v !== NULL) {  $this->arg["newTag"] = $v;          }
     $v = $this->parseStringSingle1(              $postMessage, "newTitle"      , FALSE);  if($v !== NULL) {  $this->arg["newTitle"] = $v;        }
     $v = $this->parseStringSingle1(              $postMessage, "newAuthor"     , FALSE);  if($v !== NULL) {  $this->arg["newAuthor"] = $v;       }
     $v = $this->parseStringSingle1(              $postMessage, "newPublisher"  , FALSE);  if($v !== NULL) {  $this->arg["newPublisher"] = $v;    }
