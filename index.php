@@ -477,24 +477,41 @@ printMessages($messages);
 // ---------- 検索 ---------- 
 ?>
 
+<script><!--
+  function resetSearchForm()
+  {
+    document.getElementById("searchFormTitle").value = "";
+    document.getElementById("searchFormAuthor").value = "";
+    document.getElementById("searchFormPublisher").value = "";
+    document.getElementById("searchFormMemo").value = "";
+    document.getElementById("searchFormId").value = "";
+    document.getElementById("searchFormItemCode").value = "";
+    document.getElementById("searchFormPlace").value = 0;
+    document.getElementById("searchFormState").value = 0;
+    document.getElementById("searchFormTag").value = 0;
+  }
+-->
+</script>
+
+
 <div id="searchDiv" style="display: none">
 
 <form method="GET" action="index.php">
 
 <table border=0>
 
-<tr><td>タイトル   <td><input type="text" name="title"      size="40" value="<?= implode(" ", $selectedTitle) ?>">
-<tr><td>著者       <td><input type="text" name="author"     size="40" value="<?= implode(" ", $selectedAuthor) ?>">
-<tr><td>出版社     <td><input type="text" name="publisher"  size="40" value="<?= implode(" ", $selectedPublisher) ?>">
-<tr><td>メモ       <td><input type="text" name="memo"       size="40" value="<?= implode(" ", $selectedMemo) ?>">
+<tr><td>タイトル   <td><input type="text" name="title"      id="searchFormTitle"     size="40" value="<?= implode(" ", $selectedTitle) ?>">
+<tr><td>著者       <td><input type="text" name="author"     id="searchFormAuthor"    size="40" value="<?= implode(" ", $selectedAuthor) ?>">
+<tr><td>出版社     <td><input type="text" name="publisher"  id="searchFormPublisher" size="40" value="<?= implode(" ", $selectedPublisher) ?>">
+<tr><td>メモ       <td><input type="text" name="memo"       id="searchFormMemo"      size="40" value="<?= implode(" ", $selectedMemo) ?>">
 
 
-<tr><td>DB内ID <td><input type="text" name="id" size="40" value="<?= implode(" ", $selectedId) ?>">
+<tr><td>DB内ID <td><input type="text" name="id" id="searchFormId" size="40"value="<?= implode(" ", $selectedId) ?>">
 
-<tr><td>商品コード <td><input type="text" name="itemCode" size="40" value="<?= implode(" ", $selectedItemCode) ?>">
+<tr><td>商品コード/ISBN <td><input type="text" name="itemCode" id="searchFormItemCode" size="40" value="<?= implode(" ", $selectedItemCode) ?>">
 
 <tr><td>保管場所
-<td><select name="place">
+<td><select name="place" id="searchFormPlace">
  <option value="0">指定しない</option>
  <?php foreach ($placeList as $place) { ?>
  <option value="<?= htmlspecialchars($place['id']); ?>"<?php if(count($selectedPlace) > 0 && $place['id'] == $selectedPlace[0]) { ?> selected<?php } ?>><?= htmlspecialchars($place["place"]); ?></option>
@@ -503,7 +520,7 @@ printMessages($messages);
 <br>
 
 <tr><td>未読既読状態
-<td><select name="state">
+<td><select name="state" id="searchFormState">
  <option value="0">指定しない</option>
  <?php foreach ($stateList as $state) { ?>
  <option value="<?= htmlspecialchars($state['id']); ?>"<?php if(count($selectedState) > 0 && $state['id'] == $selectedState[0]) { ?> selected<?php } ?>><?= htmlspecialchars($state["state"]); ?></option>
@@ -511,7 +528,7 @@ printMessages($messages);
 </select>
 
 <tr><td>タグ
-<td><select name="tag">
+<td><select name="tag" id="searchFormTag">
  <option value="0">指定しない</option>
  <?php foreach ($tagList as $tag) { ?>
  <option value="<?= htmlspecialchars($tag['id']); ?>"<?php if(count($selectedTag) > 0 && $tag['id'] == $selectedTag[0]) { ?> selected<?php } ?>><?= htmlspecialchars($tag["tag"]); ?></option>
@@ -526,7 +543,7 @@ printMessages($messages);
   <option value="image">表紙のみを一覧表示</option>
 </select>
 
-<tr><td>&nbsp;     <td><input type="submit" value="この条件で検索する">
+<tr><td>&nbsp;     <td><input type="submit" value="この条件で検索する"> &nbsp; <input type="button" value="検索条件のリセット" onclick="resetSearchForm();">
 
 </table>
 </form>
