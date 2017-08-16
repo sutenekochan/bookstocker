@@ -77,7 +77,7 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $imageOnlyV
       $publicationDate = $itemInfo->getPublicationDate();
       $binding         = $itemInfo->getBinding();
       $numberOfPages   = $itemInfo->getNumberOfPages();
-      $lowestPrice     = $itemInfo->getLowestNewPrice();
+      $lowestPrice     = $itemInfo->getPrice();
       $memo            = "";  if(isset($item["memo"]))      { $memo = $item["memo"]; }
     }
     else

@@ -74,6 +74,8 @@
 //     print $itemlist1->getNumberOfPages();
 //     print $itemlist1->getPublicationDate();
 //     print $itemlist1->getLowestNewPrice();            // 新品価格で最安のもの。戻り値は数値ではなく「￥ 123」みたいな形式
+//     print $itemlist1->getListPrice();
+//     print $itemlist1->getPrice();                     // ListPrice か LowestNewPrice を返す。
 //
 //
 // 作成の際に参考にしたURL
@@ -796,7 +798,6 @@ class AmazonItemList
   }
 
 
-
   public function getLowestNewPrice($index = 1)
   {
     $value = '';
@@ -805,6 +806,38 @@ class AmazonItemList
       if($this->getNumber() >= $index)
       {
         $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'OfferSummary'}->{'LowestNewPrice'}->{'FormattedPrice'});
+      }
+    }
+    return $value;
+  }
+
+
+  public function getListPrice($index = 1)
+  {
+    $value = '';
+    if($this->xmlData !== false)
+    {
+      if($this->getNumber() >= $index)
+      {
+        $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ItemAttributes'}->{'ListPrice'}->{'FormattedPrice'});
+      }
+    }
+    return $value;
+  }
+
+
+  public function getPrice($index = 1)
+  {
+    $value = '';
+    if($this->xmlData !== false)
+    {
+      if($this->getNumber() >= $index)
+      {
+        $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ItemAttributes'}->{'ListPrice'}->{'FormattedPrice'});
+        if($value == '')
+        {
+          $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'OfferSummary'}->{'LowestNewPrice'}->{'FormattedPrice'});
+        }
       }
     }
     return $value;
