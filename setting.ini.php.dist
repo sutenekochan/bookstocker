@@ -42,5 +42,9 @@ define('AMAZON_ASSOCIATE_ID','dameneko-22');
 // 1ページあたり何項目表示するか
 define('ITEMS_PER_PAGE', 10);
 
+// 追加ヘッダ/フッタ
+define('ADDITIONAL_HEADER', ''); 
+define('ADDITIONAL_FOOTER', ''); 
+
 
 ?>

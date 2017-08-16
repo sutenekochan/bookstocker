@@ -75,6 +75,9 @@ else
 }
 ?>
 
+<?php print ADDITIONAL_HEADER; ?>
+
+
 <div class="menu">
  <div class="menuicon"><a class="menulink" href="index.php?view=image"><img src="img/bookstocker_cat.png"><br>一覧</a></div>
  <div class="menuicon"><a class="menulink" href="index.php"><img src="img/readbook_cat.png"><br>詳細一覧</a></div>
