@@ -168,6 +168,17 @@ if(isset($arg["action"]))
           {
             // Amazonから情報を得てキャッシュに保存
             $newItem = $ama->searchByAsin($itemid);
+
+            if($newItem === NULL)
+            {
+              array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
+              $messages += $ama->getErrorMessagesAndClear();
+              if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+              if(isset($arg["newItemJan"]  )) { $addItemDefaultItemJan   = $arg["newItemJan"];   }
+              if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+              if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+              if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
+            }
           }
         }
       }
@@ -175,19 +186,20 @@ if(isset($arg["action"]))
       {
         $itemid =  $arg["newItemJan"];
         $newItem = $ama->searchByJan($itemid);
+
+        if($newItem === NULL)
+        {
+          array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
+          $messages += $ama->getErrorMessagesAndClear();
+          if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+          if(isset($arg["newItemJan"]  )) { $addItemDefaultItemJan   = $arg["newItemJan"];   }
+          if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+          if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+          if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
+        }
       }
 
-      if($newItem === NULL)
-      {
-        array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
-        $messages += $ama->getErrorMessagesAndClear();
-        if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
-        if(isset($arg["newItemJan"]  )) { $addItemDefaultItemJan   = $arg["newItemJan"];   }
-        if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
-        if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
-        if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
-      }
-      else
+      if($newItem !== NULL)
       {
         $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $newItem->getAsin(), $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
         if($ret === FALSE)
