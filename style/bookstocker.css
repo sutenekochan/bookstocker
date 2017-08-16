@@ -48,6 +48,10 @@ body {
   padding-top: 10px;
 }
 
+.detailImage {
+  max-width: 120px;
+}
+
 .itemDetailArea {
   float: left;
   width: 640px;

@@ -144,7 +144,7 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $imageOnlyV
    <a name="item<?= htmlspecialchars($item["id"]); ?>"></a>
 
    <div class="itemImageArea">
-    <a href="index.php?id=<?= htmlspecialchars($item["id"]); ?>"><img class="detailimage" src="<?= $imageUrl ?>" <?php if($imageWidth != "") { ?>width="<?= $imageWidth ?>"<?php } ?> <?php if($imageHeight != "") { ?>height="<?= $imageHeight ?>"<?php } ?>></a>
+    <a href="index.php?id=<?= htmlspecialchars($item["id"]); ?>"><img class="detailImage" src="<?= $imageUrl ?>" <?php if($imageWidth != "") { ?>width="<?= $imageWidth ?>"<?php } ?> <?php if($imageHeight != "") { ?>height="<?= $imageHeight ?>"<?php } ?>></a>
    </div>
 
 <?php
