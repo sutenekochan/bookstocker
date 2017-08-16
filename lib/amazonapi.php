@@ -260,7 +260,7 @@ class AmazonApi
   public function searchByJan($jan)
   {
     return $this->searchById([
-      'IdType'      => 'JAN',
+      'IdType'      => 'EAN',
       'ItemId'      => $jan,
       'SearchIndex' => $this->searchIndex,
     ]);

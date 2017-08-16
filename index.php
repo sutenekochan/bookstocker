@@ -128,33 +128,24 @@ if(isset($arg["action"]))
     }
 
     // itemidでの追加
-    else if(isset($arg["newItemCode"]) && $arg["newItemCode"] != "" && (is_numeric($arg["newItemCode"]) || is_string($arg["newItemCode"])))
+    else if(
+      (isset($arg["newItemCode"]) && $arg["newItemCode"] != "" && (is_numeric($arg["newItemCode"]) || is_string($arg["newItemCode"]))) ||
+      (isset($arg["newItemJan"])  && $arg["newItemJan"]  != "" &&  is_numeric($arg["newItemJan"])))
     {
-      $itemid = $arg["newItemCode"];
-
-      // 商品コード欄に入力されたものが http:// あるいは https:// で始まる場合、Amazon の URL とみなして変換する
-      if(strstr($itemid, "http://") == $itemid || strstr($itemid, "https://") == $itemid)
+      if(isset($arg["newItemCode"]))
       {
-        $itemid = AmazonApi::getAsinFromUrl($itemid);
-      }
+        $itemid = $arg["newItemCode"];
 
-      if($itemid === NULL)
-      {
-        array_push($messages, "追加に失敗しました");
-        array_push($messages, "必要なパラメータがセットされていないか、AmazonのURLからパラメータを推測できません");
-        if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
-        if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
-        if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
-        if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
-      }
-      else
-      {
-        $itemid = normalizeAsin($itemid);
-
-        // 補正した結果が10桁で無い場合や不正文字を含む場合、Amazonに行かずにエラーとする
-        if(strlen($itemid) != 10 || containsHtmlSqlSpecialCharactors($itemid))
+        // 商品コード欄に入力されたものが http:// あるいは https:// で始まる場合、Amazon の URL とみなして変換する
+        if(strstr($itemid, "http://") == $itemid || strstr($itemid, "https://") == $itemid)
         {
-          array_push($messages, "指定された値はASIN(Amazonの商品コード)として正しくないか、正しく変換できません[" . htmlspecialchars($itemid) . "]");
+          $itemid = AmazonApi::getAsinFromUrl($itemid);
+        }
+
+        if($itemid === NULL)
+        {
+          array_push($messages, "追加に失敗しました");
+          array_push($messages, "必要なパラメータがセットされていないか、AmazonのURLからパラメータを推測できません");
           if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
           if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
           if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
@@ -162,13 +153,12 @@ if(isset($arg["action"]))
         }
         else
         {
-          // Amazonから情報を得てキャッシュに保存
-          $newItem = $ama->searchByAsin($itemid);
+          $itemid = normalizeAsin($itemid);
 
-          if($newItem === NULL)
+          // 補正した結果が10桁で無い場合や不正文字を含む場合、Amazonに行かずにエラーとする
+          if(strlen($itemid) != 10 || containsHtmlSqlSpecialCharactors($itemid))
           {
-            array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
-            $messages += $ama->getErrorMessagesAndClear();
+            array_push($messages, "指定された値はASIN(Amazonの商品コード)として正しくないか、正しく変換できません[" . htmlspecialchars($itemid) . "]");
             if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
             if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
             if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
@@ -176,42 +166,68 @@ if(isset($arg["action"]))
           }
           else
           {
-            $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $itemid, $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
-            if($ret === FALSE)
-            {
-              array_push($messages, "追加に失敗しました (db)");
-              array_push($messages, "同一アイテムが既に存在する場合は表示します");
-              $messages += $db->getErrorMessagesAndClear();
-              if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
-              if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
-              if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
-              if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
-
-              // 同一アイテムが既に存在するかもしれないため、ASINを検索条件にセットしておく
-              $selectedItemCode = [$itemid];
-            }
-            else
-            {
-              // 画像キャッシュを保存
-              $newItemAsin = $newItem->getAsin();
-              $newItemImageUrl = $newItem->getMediumImageUrl();
-              $newItemImageExt = substr($newItemImageUrl, strrpos($newItemImageUrl, "."));
-              if(!(file_exists(BOOK_IMAGE_DIR . "/asin_" . $newItemAsin . $newItemImageExt)) && $newItemImageUrl !==  "")
-              {
-                $newItemFileName = BOOK_IMAGE_URL . "asin_" . $newItemAsin . $newItemImageExt;
-                $newItemContents = file_get_contents($newItemImageUrl);
-                $newItemFileHandle = fopen($newItemFileName, "wb");
-                fwrite($newItemFileHandle, $newItemContents);
-                fclose($newItemFileHandle);
-              }
-
-              array_push($messages, "項目を追加しました");
-              $addItemSuccess = TRUE;
-            }
+            // Amazonから情報を得てキャッシュに保存
+            $newItem = $ama->searchByAsin($itemid);
           }
         }
       }
-    } // if(isset($arg["newTitle"]) && $arg["newTitle"] != "")
+      else // isset($arg["newItemCode"])
+      {
+        $itemid =  $arg["newItemJan"];
+        $newItem = $ama->searchByJan($itemid);
+      }
+
+      if($newItem === NULL)
+      {
+        array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
+        $messages += $ama->getErrorMessagesAndClear();
+        if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+        if(isset($arg["newItemJan"]  )) { $addItemDefaultItemJan   = $arg["newItemJan"];   }
+        if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+        if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+        if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
+      }
+      else
+      {
+        $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $newItem->getAsin(), $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
+        if($ret === FALSE)
+        {
+          array_push($messages, "追加に失敗しました (db)");
+          array_push($messages, "同一アイテムが既に存在する場合は表示します");
+          $messages += $db->getErrorMessagesAndClear();
+          if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
+          if(isset($arg["newItemJan"]  )) { $addItemDefaultItemJan   = $arg["newItemJan"];   }
+          if(isset($arg["newTitle"]    )) { $addItemDefaultTitle     = $arg["newTitle"];     }
+          if(isset($arg["newAuthor"]   )) { $addItemDefaultAuthor    = $arg["newAuthor"];    }
+          if(isset($arg["newPublisher"])) { $addItemDefaultPublisher = $arg["newPublisher"]; }
+
+          // 同一アイテムが既に存在するかもしれないため、ASINを検索条件にセットしておく
+          if(isset($arg["newItemCode"]))
+          {
+            //$selectedItemCode = [$itemid];
+            $selectedItemCode = [$newItem->getAsin()];
+          }
+        }
+        else
+        {
+          // 画像キャッシュを保存
+          $newItemAsin = $newItem->getAsin();
+          $newItemImageUrl = $newItem->getMediumImageUrl();
+          $newItemImageExt = substr($newItemImageUrl, strrpos($newItemImageUrl, "."));
+          if(!(file_exists(BOOK_IMAGE_DIR . "/asin_" . $newItemAsin . $newItemImageExt)) && $newItemImageUrl !==  "")
+          {
+            $newItemFileName = BOOK_IMAGE_URL . "asin_" . $newItemAsin . $newItemImageExt;
+            $newItemContents = file_get_contents($newItemImageUrl);
+            $newItemFileHandle = fopen($newItemFileName, "wb");
+            fwrite($newItemFileHandle, $newItemContents);
+            fclose($newItemFileHandle);
+          }
+
+          array_push($messages, "項目を追加しました");
+          $addItemSuccess = TRUE;
+        }
+      }
+    }
 
     // 表紙画像アップロードの処理
     if($addItemSuccess && $_FILES['newBookImage']['error'] == UPLOAD_ERR_OK && $_FILES['newBookImage']['size'] > 0)
@@ -437,8 +453,10 @@ printMessages($messages);
 
 <table border=0>
 
-<tr><td>商品コード
+<tr><td rowspan=2>商品コード
     <td><input type="text" id="newItemCode" name="newItemCode" size="40" value="<?= htmlspecialchars($addItemDefaultItemCode); ?>" placeholder="ISBN、ASIN、AmazonのURL(短縮してないもの)">
+</tr>
+<tr><td><input type="text" id="newItemJan"  name="newItemJan"  size="40" value="<?= htmlspecialchars($addItemDefaultItemJan);  ?>" placeholder="JANコード">
 </tr>
 
 <tr><td colspan=2>&nbsp;

@@ -117,7 +117,16 @@
 * 以下の場合に指定：action=addItem
 * ItemCodeは、ASIN, ISBN13, ISBN10, AmazonのURL のいずれかで指定 (数値以外に英字を含む場合あり)
 * URLが含まれる(＝どの文字が来るかわからない)ため、内部的にはHTMLSpecialCharsのチェックは行われない
-* 省略可能。省略した場合は newTitle の指定が必要になる。
+* 省略可能。newItemCode, NewItemJan, newTitle の順で優先される。いずれかの指定が必要である。
+
+
+#### newItemJan：追加する項目の商品コード
+* タイプ：数値
+* 以下の場合に指定：action=addItem
+* ItemCodeは JAN コードで指定 (数値以外に英字を含む場合あり)
+* JANコード(国際規格名＝EANコード)は13桁、8桁のものがあるが、そのうち13桁のものを指定できる。
+* 省略可能。newItemCode, NewItemJan, newTitle の順で優先される。いずれかの指定が必要である。
+
 
 
 #### newPlace：追加・変更する項目の場所
