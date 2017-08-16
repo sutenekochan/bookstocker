@@ -47,8 +47,8 @@ function normalizeAsin($itemid)
     $itemid = amazonApi::isbn13toIsbn10($itemid);
   }
 
-  // 10桁ISBNのCheck Digitを再計算。副作用として、Check Digitに文字"x"が含まれていた場合、小文字が大文字に変換される
-  if(strlen($itemid) == 10)
+  // $itemid が10桁で、9桁芽まで数値の場合、10桁ISBNとみなし、Check Digitを再計算。副作用として、Check Digitに文字"x"が含まれていた場合、小文字が大文字に変換される
+  if(strlen($itemid) == 10 && is_numeric(substr($itemid, 0, 9)))
   {
     //$itemid = strtoupper($itemid);
     $itemid = amazonApi::calcIsbn10CheckDigit($itemid);
