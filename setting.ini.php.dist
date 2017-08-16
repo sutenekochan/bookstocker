@@ -9,7 +9,7 @@ define('DEBUG', FALSE);
 define ('CACHE_DIR', __DIR__  . '/cache/');
 
 // 表紙画像を保存するディレクトリ (public_html内である必要がある)
-define ('BOOK_IMAGE_URL', 'bookimage/');
+define ('BOOK_IMAGE_URL', 'itemimage/');
 define ('BOOK_IMAGE_DIR', __DIR__  . '/' . BOOK_IMAGE_URL);
 
 

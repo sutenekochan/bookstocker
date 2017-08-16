@@ -61,6 +61,7 @@
 //     $numberOfItems = $itemList1->getNumber();
 //     print $itemlist1->getTitle();                     // 1番目の検索結果の情報を取得
 //     print $itemlist1->getAuthor(2);                   // 2番目以降を指定する場合は引数を指定する。指定できるのは0～9。検索結果が10個以上ある場合でも11個目以降は取れない
+//     print $itemlist1->getArtist();                    // (本ではなく)CDの場合にはAuthorが存在せずArtistになる
 //     print $itemlist1->getBinding();                   // 本の形状(新書等)
 //     print $itemlist1->getAsin();
 //     print $itemlist1->getIsbn();
@@ -643,6 +644,20 @@ class AmazonItemList
       if($this->getNumber() >= $index)
       {
         $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ItemAttributes'}->{'Author'});
+      }
+    }
+    return $value;
+  }
+
+
+  public function getArtist($index = 1)
+  {
+    $value = '';
+    if($this->xmlData !== false)
+    {
+      if($this->getNumber() >= $index)
+      {
+        $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ItemAttributes'}->{'Artist'});
       }
     }
     return $value;

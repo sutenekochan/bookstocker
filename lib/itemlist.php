@@ -72,8 +72,8 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $imageOnlyV
       $itemid          = $itemInfo->getAsin();
       $detailPageUrl   = $itemInfo->getDetailPageUrl();
       $title           = $itemInfo->getTitle();
-      $author          = $itemInfo->getAuthor();
-      $publisher       = $itemInfo->getPublisher();
+      $author          = $itemInfo->getAuthor();  if($author == '') { $author = $itemInfo->getArtist();  }
+      $publisher       = $itemInfo->getPublisher(); 
       $publicationDate = $itemInfo->getPublicationDate();
       $binding         = $itemInfo->getBinding();
       $numberOfPages   = $itemInfo->getNumberOfPages();

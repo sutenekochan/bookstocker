@@ -201,7 +201,9 @@ if(isset($arg["action"]))
 
       if($newItem !== NULL)
       {
-        $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $newItem->getAsin(), $newItem->getTitle(), $newItem->getAuthor(), $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
+        $author = $newItem->getAuthor();
+        if($author == '') { $author = $newItem->getArtist();  }
+        $ret = $db->addItem(BookStockerDB::DataSource_Amazon, $newItem->getAsin(), $newItem->getTitle(), $author, $newItem->getPublisher(), $arg["newPlace"], $arg["newState"]);
         if($ret === FALSE)
         {
           array_push($messages, "追加に失敗しました (db)");
@@ -490,10 +492,10 @@ printMessages($messages);
 <tr><td colspan=2>&nbsp;
 <tr><td colspan=2>Amazonにないアイテムの場合<br>
 
-<tr><td>表紙画像   <td><input type="file" name="newBookImage" size="40">
-<tr><td>タイトル   <td><input type="text" name="newTitle"     size="40" value="<?= htmlspecialchars($addItemDefaultTitle); ?>">
-<tr><td>著者       <td><input type="text" name="newAuthor"    size="40" value="<?= htmlspecialchars($addItemDefaultAuthor); ?>">
-<tr><td>出版社     <td><input type="text" name="newPublisher" size="40" value="<?= htmlspecialchars($addItemDefaultPublisher); ?>">
+<tr><td>商品画像         <td><input type="file" name="newBookImage" size="40">
+<tr><td>タイトル         <td><input type="text" name="newTitle"     size="40" value="<?= htmlspecialchars($addItemDefaultTitle); ?>">
+<tr><td>著者/アーティスト<td><input type="text" name="newAuthor"    size="40" value="<?= htmlspecialchars($addItemDefaultAuthor); ?>">
+<tr><td>出版社           <td><input type="text" name="newPublisher" size="40" value="<?= htmlspecialchars($addItemDefaultPublisher); ?>">
 
 <tr><td colspan=2>&nbsp;
 
@@ -534,10 +536,10 @@ printMessages($messages);
 
 <table border=0>
 
-<tr><td>タイトル   <td><input type="text" name="title"      id="searchFormTitle"     size="40" value="<?= implode(" ", $selectedTitle) ?>">
-<tr><td>著者       <td><input type="text" name="author"     id="searchFormAuthor"    size="40" value="<?= implode(" ", $selectedAuthor) ?>">
-<tr><td>出版社     <td><input type="text" name="publisher"  id="searchFormPublisher" size="40" value="<?= implode(" ", $selectedPublisher) ?>">
-<tr><td>メモ       <td><input type="text" name="memo"       id="searchFormMemo"      size="40" value="<?= implode(" ", $selectedMemo) ?>">
+<tr><td>タイトル         <td><input type="text" name="title"      id="searchFormTitle"     size="40" value="<?= implode(" ", $selectedTitle) ?>">
+<tr><td>著者/アーティスト<td><input type="text" name="author"     id="searchFormAuthor"    size="40" value="<?= implode(" ", $selectedAuthor) ?>">
+<tr><td>出版社           <td><input type="text" name="publisher"  id="searchFormPublisher" size="40" value="<?= implode(" ", $selectedPublisher) ?>">
+<tr><td>メモ             <td><input type="text" name="memo"       id="searchFormMemo"      size="40" value="<?= implode(" ", $selectedMemo) ?>">
 
 
 <tr><td>DB内ID <td><input type="text" name="id" id="searchFormId" size="40"value="<?= implode(" ", $selectedId) ?>">

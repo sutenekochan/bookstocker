@@ -8,5 +8,10 @@
 /data/*
 !/data/.htaccess
 
-/bookimage/*
-!/data/.htaccess
+/itemimage/*
+/itemimage-*/*
+!/itemimage/.htaccess
+
+
+# for development
+test.php
