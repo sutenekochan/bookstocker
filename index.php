@@ -189,7 +189,7 @@ if(isset($arg["action"]))
 
         if($newItem === NULL)
         {
-          array_push($messages, "追加に失敗しました。時間をおいて試してください (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
+          array_push($messages, "追加に失敗しました (Amazonアクセスエラー[" . htmlspecialchars($itemid) . "])");
           $messages += $ama->getErrorMessagesAndClear();
           if(isset($arg["newItemCode"] )) { $addItemDefaultItemCode  = $arg["newItemCode"];  }
           if(isset($arg["newItemJan"]  )) { $addItemDefaultItemJan   = $arg["newItemJan"];   }

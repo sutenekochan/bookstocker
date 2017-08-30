@@ -200,7 +200,7 @@ $tagCount = count($tagList);
   <?php if($placeCount >= 2) { ?>
   <td>
       <form method="POST" action="setting.php">
-      <input type="hidden" name="act" value="delPlace">
+      <input type="hidden" name="action" value="delPlace">
       <input type="hidden" name="targetPlace" value="<?= htmlspecialchars($place["id"]); ?>">
       <input type="submit" value="削除"></form>
  <?php } ?>
