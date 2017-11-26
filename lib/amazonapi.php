@@ -209,6 +209,11 @@ class AmazonApi
         {
           $asin = substr($asin, 0, $pos);
         }
+        $pos = strpos($asin, "?");
+        if($pos !== FALSE)
+        {
+          $asin = substr($asin, 0, $pos);
+        }
       }
     }
 
