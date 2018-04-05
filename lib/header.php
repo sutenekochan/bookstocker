@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <title>BookStock - 所蔵本の保管場所管理</title>
   <link rel="stylesheet" type="text/css" href="style/bookstocker.css">
-</head>
 
 <script><!--
   var itemDisplayState = "none";  // none,newItem,filter,search の何れか
@@ -52,8 +51,19 @@
     }
   };
 
+  function editMemoAreaDisplay(memoNumber)
+  {
+    var areaSpanNameText = "memo" + memoNumber + "text";
+    var areaSpanNameEdit = "memo" + memoNumber + "edit";
+    targetSpan = document.getElementById(areaSpanNameText);  if(null !== targetSpan) { targetSpan.style.display = "none"; }
+    targetSpan = document.getElementById(areaSpanNameEdit);  if(null !== targetSpan) { targetSpan.style.display = "inline"; }
+    targetSpan.focus();
+  }
+
 -->
 </script>
+
+</head>
 
 <body onload="initItemDisplay();">
 

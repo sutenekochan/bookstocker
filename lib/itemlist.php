@@ -207,15 +207,22 @@ function printItemList($ama, $db, $itemList, $startNum, $numOfItems, $imageOnlyV
    <form method="POST" action="index.php" class="memoArea">
    <input type="hidden" name="action" value="modifyItem">
    <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
-   <input type="text" name="newMemo" size=30 value="<?= htmlspecialchars($memo); ?>" placeholder="一言メモ">
-   <input type="submit" value="メモ更新">
+   <?php if($memo !== "") { ?>
+    <span class="memoTextArea" id="memo<?= htmlspecialchars($item["id"]); ?>text"><?= htmlspecialchars($memo); ?>&nbsp;<input type="button" value="メモ編集" onclick="editMemoAreaDisplay(<?= htmlspecialchars($item["id"]); ?>)"></span>
+    <span id="memo<?= htmlspecialchars($item["id"]); ?>edit" style="display:none"><input type="text" name="newMemo" size=30 value="<?= htmlspecialchars($memo); ?>" placeholder="一言メモ">
+    <input type="submit" value="メモ更新"></span>
+    </form>
+    <form method="POST" action="index.php" class="memoArea">
+    <input type="hidden" name="action" value="modifyItem">
+    <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
+    <input type="hidden" name="deleteMemoFlag" value=1>
+    <input type="submit" value="メモ削除">
    </form>
-   <form method="POST" action="index.php" class="memoArea">
-   <input type="hidden" name="action" value="modifyItem">
-   <input type="hidden" name="targetItem" value="<?= htmlspecialchars($item["id"]); ?>">
-   <input type="hidden" name="deleteMemoFlag" value=1>
-   <input type="submit" value="メモ削除">
-   </form>
+   <?php } else { ?>
+    <span id="memo<?= htmlspecialchars($item["id"]); ?>edit"><input type="text" name="newMemo" size=30 value="<?= htmlspecialchars($memo); ?>" placeholder="一言メモ">
+    <input type="submit" value="メモ追加"></span>
+    </form>
+   <?php } ?>
    <br>
 
   <?php $tagRefList = $db->getTagRefList((int)($item["id"])); foreach($tagRefList as $tagRef) { ?>

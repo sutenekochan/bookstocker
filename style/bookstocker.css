@@ -82,6 +82,10 @@ body {
   display: inline;
 }
 
+.memoTextArea {
+  font-size: small;
+}
+
 .tagTextArea {
   font-size: small;
   background-color: #aee;
