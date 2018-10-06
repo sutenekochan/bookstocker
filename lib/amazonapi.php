@@ -727,6 +727,10 @@ class AmazonItemList
       if($this->getNumber() >= $index)
       {
         $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'MediumImage'}->{'URL'});
+        if(! defined($value))
+        {
+          $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ImageSets'}->{'ImageSet'}[0]->{'MediumImage'}->{'URL'});
+        }
       }
     }
     return $value;
@@ -741,6 +745,10 @@ class AmazonItemList
       if($this->getNumber() >= $index)
       {
         $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'MediumImage'}->{'Height'});
+        if(! defined($value))
+        {
+          $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ImageSets'}->{'ImageSet'}[0]->{'MediumImage'}->{'URL'});
+        }
       }
     }
     return $value;
@@ -755,6 +763,10 @@ class AmazonItemList
       if($this->getNumber() >= $index)
       {
         $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'MediumImage'}->{'Width'});
+        if(! defined($value))
+        {
+          $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ImageSets'}->{'ImageSet'}[0]->{'MediumImage'}->{'URL'});
+        }
       }
     }
     return $value;
