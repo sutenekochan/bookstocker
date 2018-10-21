@@ -727,7 +727,7 @@ class AmazonItemList
       if($this->getNumber() >= $index)
       {
         $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'MediumImage'}->{'URL'});
-        if(! defined($value))
+        if(! isset($value))
         {
           $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ImageSets'}->{'ImageSet'}[0]->{'MediumImage'}->{'URL'});
         }
@@ -745,9 +745,9 @@ class AmazonItemList
       if($this->getNumber() >= $index)
       {
         $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'MediumImage'}->{'Height'});
-        if(! defined($value))
+        if(! isset($value))
         {
-          $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ImageSets'}->{'ImageSet'}[0]->{'MediumImage'}->{'URL'});
+          $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ImageSets'}->{'ImageSet'}[0]->{'MediumImage'}->{'Height'});
         }
       }
     }
@@ -763,9 +763,9 @@ class AmazonItemList
       if($this->getNumber() >= $index)
       {
         $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'MediumImage'}->{'Width'});
-        if(! defined($value))
+        if(! isset($value))
         {
-          $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ImageSets'}->{'ImageSet'}[0]->{'MediumImage'}->{'URL'});
+          $value = @($this->xmlData->{'Items'}->{'Item'}[$index - 1]->{'ImageSets'}->{'ImageSet'}[0]->{'MediumImage'}->{'Width'});
         }
       }
     }
